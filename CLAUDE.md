@@ -136,3 +136,36 @@ The command automatically:
 5. Organizes output in a dedicated folder structure
 
 For detailed usage, see [Mermaid Visualization Generator - User Guide](docs/mermaid-visualization-guide.md)
+
+### Mermaid to Image Converter
+Convert Mermaid diagrams in markdown files to high-quality images using the official Mermaid CLI:
+
+```bash
+# Basic usage
+uv run python scripts/mermaid_to_image.py <markdown-file-path>
+
+# Custom format and theme
+uv run python scripts/mermaid_to_image.py <markdown-file-path> --format svg --theme dark
+
+# Custom dimensions and output directory
+uv run python scripts/mermaid_to_image.py <markdown-file-path> --width 2560 --height 1440 --output-dir custom_images
+
+# Check dependencies
+uv run python scripts/mermaid_to_image.py --check-deps
+```
+
+Features:
+- Uses official Mermaid CLI (mmdc) for professional-grade rendering
+- Supports PNG, SVG, and PDF output formats
+- Intelligent diagram type inference (flowcharts, timelines, sequence, class, etc.)
+- Multiple themes: default, dark, forest, neutral, base
+- Configurable dimensions, background colors, and output settings
+- Organized output structure: `visualizations/parent-folder-name/`
+- Sequential naming: `basename-01.png, basename-02.svg, etc.`
+- Comprehensive dependency checking and error handling
+
+**Dependencies:**
+- Mermaid CLI: `npm install -g @mermaid-js/mermaid-cli`
+- Python package: `mermaid-mcp` (included in project)
+
+The tool processes markdown files containing ```mermaid code blocks and generates professional-quality images suitable for documentation, presentations, and publications.

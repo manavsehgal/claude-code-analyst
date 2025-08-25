@@ -1,0 +1,48 @@
+# Mermaid to Image Conversion Configuration
+# This file contains default settings for converting Mermaid diagrams to high-quality images
+
+# Output directory for generated images (relative to project root)
+output_dir: "visualizations"
+
+# Image format: png, svg, or pdf
+# - png: Best for high-resolution raster output, good for documents and presentations
+# - svg: Best for scalable vector graphics, ideal for web and print
+# - pdf: Good for documents, vector format with text support
+image_format: "png"
+
+# Image dimensions (applies to PNG format only)
+# Standard resolutions:
+# - 1920x1080 (Full HD)
+# - 2560x1440 (2K)
+# - 3840x2160 (4K)
+width: 1920
+height: 1080
+
+# DPI/Resolution for high-quality output
+# - 72: Web/screen display
+# - 150: Good quality for most uses
+# - 300: Print quality
+# - 600-1200: High-quality print/professional use
+dpi: 300
+
+# Background color (for PNG format)
+# Options: "white", "transparent", or any valid CSS color
+background_color: "white"
+
+# Mermaid theme
+# Options: "default", "dark", "forest", "neutral"
+theme: "default"
+
+# Scale factor for higher resolution rendering
+# - 1: Standard resolution
+# - 2: 2x resolution (recommended for high-quality)
+# - 3: 3x resolution (very high quality, larger files)
+scale: 2
+
+# Timeout for diagram rendering (in milliseconds)
+# Increase if complex diagrams are timing out
+timeout: 30000
+
+# Advanced settings (future use)
+# retry_count: 3  # Number of retry attempts
+# cache_images: true  # Cache generated images to avoid regeneration
