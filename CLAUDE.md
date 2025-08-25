@@ -77,3 +77,25 @@ Features:
 - Creates organized folder structure
 
 For detailed usage, see [Article to Markdown Guide](docs/article-to-md-guide.md)
+
+### Mermaid Visualization Generator (Custom Command)
+Create intuitive Mermaid.js visualizations from markdown content:
+
+```bash
+# Usage as Claude Code custom command
+/mermaid <markdown-file-path>
+```
+
+Features:
+- Analyzes markdown content to identify visualizable concepts
+- Creates multiple Mermaid.js diagrams (flowcharts, timelines, mindmaps, etc.)
+- Generates organized output in `mermaid/kebab-case-title/` folder
+- Includes contextual text with each visualization
+- Supports topics, workflows, processes, user journeys, timelines, and more
+
+The command automatically:
+1. Reads the specified markdown source file
+2. Identifies key concepts and relationships
+3. Creates appropriate Mermaid.js visualizations
+4. Saves each diagram in a separate markdown file with context
+5. Organizes output in a dedicated folder structure

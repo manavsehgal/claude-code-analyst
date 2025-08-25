@@ -4,21 +4,21 @@
     "type": "split",
     "children": [
       {
-        "id": "9bfa8cdb85eaf785",
+        "id": "95745dea9c84256d",
         "type": "tabs",
         "children": [
           {
-            "id": "33a6e2bc7c95a26d",
+            "id": "2588a06b496bd09d",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "markdown/america-is-missing-the-new-labor-economy-robotics-part-1-semianalysis/article.md",
+                "file": "mermaid/america-is-missing-the-new-labor-economy-robotics/01-robotics-evolution-timeline.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "article"
+              "title": "01-robotics-evolution-timeline"
             }
           }
         ]
@@ -78,7 +78,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 476.5
+    "width": 411.5
   },
   "right": {
     "id": "d95bd06771ac7489",
@@ -94,7 +94,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "markdown/america-is-missing-the-new-labor-economy-robotics-part-1-semianalysis/article.md",
+                "file": "mermaid/america-is-missing-the-new-labor-economy-robotics/01-robotics-evolution-timeline.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -104,7 +104,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for article"
+              "title": "Backlinks for 01-robotics-evolution-timeline"
             }
           },
           {
@@ -113,12 +113,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "markdown/america-is-missing-the-new-labor-economy-robotics-part-1-semianalysis/article.md",
+                "file": "mermaid/america-is-missing-the-new-labor-economy-robotics/01-robotics-evolution-timeline.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Outgoing links from article"
+              "title": "Outgoing links from 01-robotics-evolution-timeline"
             }
           },
           {
@@ -142,13 +142,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "markdown/america-is-missing-the-new-labor-economy-robotics-part-1-semianalysis/article.md",
+                "file": "mermaid/america-is-missing-the-new-labor-economy-robotics/01-robotics-evolution-timeline.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of article"
+              "title": "Outline of 01-robotics-evolution-timeline"
             }
           }
         ]
@@ -169,10 +169,28 @@
       "bases:Create new base": false
     }
   },
-  "active": "ec5d7b71739303d4",
+  "active": "2588a06b496bd09d",
   "lastOpenFiles": [
-    "markdown/robotics-levels-of-autonomy-semianalysis/article.md",
+    "docs/README.md",
+    "docs/mermaid-visualization-guide.md",
+    "mermaid/america-is-missing-the-new-labor-economy-robotics/03-robot-types-hierarchy.md",
+    "mermaid/america-is-missing-the-new-labor-economy-robotics/02-supply-chain-dependencies.md",
+    "mermaid/america-is-missing-the-new-labor-economy-robotics/11-executive-dashboard.md",
+    "mermaid/america-is-missing-the-new-labor-economy-robotics/01-robotics-evolution-timeline.md",
     "markdown/america-is-missing-the-new-labor-economy-robotics-part-1-semianalysis/article.md",
+    "mermaid/america-is-missing-the-new-labor-economy-robotics/10-country-strategies-outcomes.md",
+    "mermaid/america-is-missing-the-new-labor-economy-robotics/README.md",
+    "mermaid/america-is-missing-the-new-labor-economy-robotics/09-strategic-implications-call-to-action.md",
+    "mermaid/america-is-missing-the-new-labor-economy-robotics/08-path-to-general-purpose-robotics.md",
+    "mermaid/america-is-missing-the-new-labor-economy-robotics/07-manufacturing-cost-comparison.md",
+    "mermaid/america-is-missing-the-new-labor-economy-robotics/06-robot-hardware-components.md",
+    "mermaid/america-is-missing-the-new-labor-economy-robotics/05-global-market-competition.md",
+    "mermaid/america-is-missing-the-new-labor-economy-robotics/08-path-to-general-purpose-robotics.md.tmp.43952.1756099249947",
+    "mermaid/america-is-missing-the-new-labor-economy-robotics/04-china-strategic-advantage-cycle.md",
+    "mermaid/america-is-missing-the-new-labor-economy-robotics/02-supply-chain-dependencies.md.tmp.43952.1756098203083",
+    "mermaid/america-is-missing-the-new-labor-economy-robotics",
+    "mermaid",
+    "markdown/robotics-levels-of-autonomy-semianalysis/article.md",
     "markdown/america-is-missing-the-new-labor-economy-robotics-part-1-semianalysis/images/3100-chinas-annually-installed-robots-3.png",
     "markdown/america-is-missing-the-new-labor-economy-robotics-part-1-semianalysis/images/3000-chinese-govt-subsidiesGIMP.png",
     "markdown/america-is-missing-the-new-labor-economy-robotics-part-1-semianalysis/images/2900-annual-installations-with-china.png",
@@ -190,11 +208,7 @@
     "markdown/h100-vs-gb200-nvl72-training-benchmarks-power-tco-and-reliability-analysis-software-improvement-over-time-semianalysis/article.md",
     "markdown/h100-vs-gb200-nvl72-training-benchmarks-power-tco-and-reliability-analysis-software-improvement-over-time-semianalysis/images",
     "markdown/h100-vs-gb200-nvl72-training-benchmarks-power-tco-and-reliability-analysis-software-improvement-over-time-semianalysis",
-    "backlog/active-backlog.md.tmp.29874.1756094667775",
-    "test-output/example-domain/images",
     "test-output/example-domain/article.md",
-    "test-output/example-domain",
-    "test-output",
     "markdown/example-domain/article.md"
   ]
 }
