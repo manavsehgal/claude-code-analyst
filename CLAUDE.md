@@ -60,21 +60,26 @@ uv run mypy .
 ## Available Tools
 
 ### Article to Markdown Converter
-Convert web articles to clean markdown files with metadata and preserved images:
+Convert web articles or local HTML files to clean markdown files with metadata and preserved images:
 
 ```bash
-# Basic usage
+# Basic usage with web URL
 uv run python scripts/article_to_md.py <URL>
 
+# Basic usage with local HTML file
+uv run python scripts/article_to_md.py <path-to-html-file>
+
 # With custom output directory
-uv run python scripts/article_to_md.py <URL> --output-dir <directory>
+uv run python scripts/article_to_md.py <URL-or-file-path> --output-dir <directory>
 ```
 
 Features:
-- Extracts main article content
-- Downloads and preserves images
-- Adds metadata (title, date, word count, etc.)
-- Creates organized folder structure
+- Works with both web URLs and local HTML files
+- Extracts main article content using readability algorithms
+- Downloads and preserves images (for web sources) or handles local images
+- Adds comprehensive metadata (title, date, word count, image count, etc.)
+- Creates organized folder structure with kebab-case naming
+- Automatically detects input type (URL vs local file path)
 
 For detailed usage, see [Article to Markdown Guide](docs/article-to-md-guide.md)
 

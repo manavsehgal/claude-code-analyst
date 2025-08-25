@@ -4,21 +4,17 @@
     "type": "split",
     "children": [
       {
-        "id": "95745dea9c84256d",
+        "id": "1c0edcc04dabfbd3",
         "type": "tabs",
         "children": [
           {
-            "id": "2588a06b496bd09d",
+            "id": "82b63bc92e0fe56b",
             "type": "leaf",
             "state": {
-              "type": "markdown",
-              "state": {
-                "file": "mermaid/america-is-missing-the-new-labor-economy-robotics/01-robotics-evolution-timeline.md",
-                "mode": "source",
-                "source": false
-              },
+              "type": "empty",
+              "state": {},
               "icon": "lucide-file",
-              "title": "01-robotics-evolution-timeline"
+              "title": "New tab"
             }
           }
         ]
@@ -94,7 +90,6 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "mermaid/america-is-missing-the-new-labor-economy-robotics/01-robotics-evolution-timeline.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -104,7 +99,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for 01-robotics-evolution-timeline"
+              "title": "Backlinks"
             }
           },
           {
@@ -113,12 +108,11 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "mermaid/america-is-missing-the-new-labor-economy-robotics/01-robotics-evolution-timeline.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Outgoing links from 01-robotics-evolution-timeline"
+              "title": "Outgoing links"
             }
           },
           {
@@ -142,13 +136,12 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "mermaid/america-is-missing-the-new-labor-economy-robotics/01-robotics-evolution-timeline.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of 01-robotics-evolution-timeline"
+              "title": "Outline"
             }
           }
         ]
@@ -169,39 +162,40 @@
       "bases:Create new base": false
     }
   },
-  "active": "2588a06b496bd09d",
+  "active": "82b63bc92e0fe56b",
   "lastOpenFiles": [
+    "markdown/building-effective-ai-agents-anthropic/images/4b9a1f4eb63d5962a6e1746ac26bbc857cf3474f-2400x1666.png",
+    "markdown/building-effective-ai-agents-anthropic/images/58d9f10c985c4eb5d53798dea315f7bb5ab6249e-2401x1000.png",
+    "markdown/building-effective-ai-agents-anthropic/images/14f51e6406ccb29e695da48b17017e899a6119c7-2401x1000.png",
+    "markdown/building-effective-ai-agents-anthropic/images/8985fc683fae4780fb34eab1365ab78c7e51bc8e-2401x1000.png",
+    "markdown/building-effective-ai-agents-anthropic/images/406bb032ca007fd1624f261af717d70e6ca86286-2401x1000.png",
+    "markdown/building-effective-ai-agents-anthropic/images/5c0c0e9fe4def0b584c04d37849941da55e5e71c-2401x1000.png",
+    "markdown/building-effective-ai-agents-anthropic/images/7418719e3dab222dccb379b8879e1dc08ad34c78-2401x1000.png",
+    "markdown/building-effective-ai-agents-anthropic/images/d3083d3f40bb2b6f477901cc9a240738d3dd1371-2401x1000.png",
+    "scripts/article_to_md.py.tmp.68469.1756108019556",
+    "scripts/article_to_md.py.tmp.68469.1756108012157",
+    "scripts/article_to_md.py.tmp.68469.1756108003896",
+    "markdown/building-effective-ai-agents-anthropic/article.md",
+    "mermaid/america-is-missing-the-new-labor-economy-robotics/01-robotics-evolution-timeline.md",
+    "markdown/building-effective-ai-agents-anthropic/images",
+    "markdown/building-effective-ai-agents-anthropic",
+    "docs/article-to-md-guide.md.tmp.65399.1756107596964",
+    "docs/article-to-md-guide.md.tmp.65399.1756107571095",
     "backlog/active-backlog.md.tmp.65399.1756107262211",
     "test_output_absolute/test-article-local-html-file/images",
     "test_output_absolute/test-article-local-html-file/article.md",
     "test_output_absolute/test-article-local-html-file",
-    "test_output_absolute",
-    "test_output_local/test-article-local-html-file/images",
     "test_output_local/test-article-local-html-file/article.md",
-    "test_output_local/test-article-local-html-file",
-    "test_output_local",
-    "test_article.html",
-    "test_output/example-domain/images",
     "test_output/example-domain/article.md",
-    "test_output/example-domain",
-    "test_output",
     "html/building-effective-ai-agents-anthropic/images/image_7535078375853070594.webp",
     "html/building-effective-ai-agents-anthropic/images/14f51e6406ccb29e695da48b17017e899a6119c7-2401x1000.png",
     "html/building-effective-ai-agents-anthropic/images/image_767263871993629648.webp",
-    "html/building-effective-ai-agents-anthropic/images/8985fc683fae4780fb34eab1365ab78c7e51bc8e-2401x1000.png",
-    "html/building-effective-ai-agents-anthropic/images/4b9a1f4eb63d5962a6e1746ac26bbc857cf3474f-2400x1666.png",
-    "html/building-effective-ai-agents-anthropic/images/image_1105595789674499149.webp",
-    "html/building-effective-ai-agents-anthropic/images/image_6064546295687918668.webp",
-    "html/building-effective-ai-agents-anthropic/images/d3083d3f40bb2b6f477901cc9a240738d3dd1371-2401x1000.png",
-    "html/building-effective-ai-agents-anthropic/images/image_5515291290790101571.webp",
-    "html/building-effective-ai-agents-anthropic/images/image_1453064530234612793.webp",
     "docs/html-downloader-guide.md",
     "docs/README.md",
     "docs/mermaid-visualization-guide.md",
     "mermaid/america-is-missing-the-new-labor-economy-robotics/03-robot-types-hierarchy.md",
     "mermaid/america-is-missing-the-new-labor-economy-robotics/02-supply-chain-dependencies.md",
     "mermaid/america-is-missing-the-new-labor-economy-robotics/11-executive-dashboard.md",
-    "mermaid/america-is-missing-the-new-labor-economy-robotics/01-robotics-evolution-timeline.md",
     "markdown/america-is-missing-the-new-labor-economy-robotics-part-1-semianalysis/article.md",
     "mermaid/america-is-missing-the-new-labor-economy-robotics/10-country-strategies-outcomes.md",
     "mermaid/america-is-missing-the-new-labor-economy-robotics/README.md",
