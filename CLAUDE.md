@@ -78,6 +78,34 @@ Features:
 
 For detailed usage, see [Article to Markdown Guide](docs/article-to-md-guide.md)
 
+### HTML Page Downloader
+Download complete web pages as clean HTML archives with preserved images and metadata:
+
+```bash
+# Basic usage
+uv run python scripts/html_downloader.py <URL>
+
+# With custom output directory
+uv run python scripts/html_downloader.py <URL> --output-dir <directory>
+
+# Skip robots.txt check (use responsibly)
+uv run python scripts/html_downloader.py <URL> --skip-robots
+```
+
+Features:
+- Smart content extraction using readability algorithms
+- Comprehensive metadata preservation (title, description, OpenGraph, Twitter cards, dates, authors)
+- Intelligent image handling with proper HTTP headers for protected content
+- Clean, well-formed HTML5 output with embedded responsive styling
+- Source attribution and archive information
+- Robust error handling and progress feedback
+
+Output structure:
+- `html/kebab-case-title/index.html` - Complete HTML document
+- `html/kebab-case-title/images/` - All downloaded images referenced locally
+
+The tool creates self-contained HTML archives perfect for offline reading, research, and documentation.
+
 ### Mermaid Visualization Generator (Custom Command)
 Create intuitive Mermaid.js visualizations from markdown content:
 
