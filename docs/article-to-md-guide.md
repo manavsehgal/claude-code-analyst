@@ -9,7 +9,9 @@ The `article_to_md.py` script converts web articles into clean, well-formatted M
 - Respects robots.txt policies
 - Creates organized folder structure for output
 - Validates HTML content before processing
-- Generates clean, readable Markdown
+- Generates clean, readable Markdown with YAML frontmatter metadata
+- Extracts article publication date when available
+- Tracks word count and image statistics
 
 ## Installation
 Ensure dependencies are installed:
@@ -43,10 +45,35 @@ The script creates an organized folder structure:
 ```
 markdown/
 └── article-title-in-kebab-case/
-    ├── article.md        # Converted markdown content
+    ├── article.md        # Converted markdown with metadata
     └── images/           # Downloaded images
         ├── image1.jpg
         └── image2.png
+```
+
+### Metadata Format
+Each article includes YAML frontmatter with:
+- **title**: Article title
+- **source_url**: Original article URL
+- **article_date**: Publication date (if available)
+- **date_scraped**: Date when converted
+- **word_count**: Total words in article
+- **image_count**: Number of images downloaded
+
+Example article.md:
+```markdown
+---
+title: "Article Title"
+source_url: https://example.com/article
+article_date: 2024-01-15
+date_scraped: 2024-01-20
+word_count: 1250
+image_count: 3
+---
+
+# Article Title
+
+Article content here...
 ```
 
 ## How It Works

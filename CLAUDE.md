@@ -56,3 +56,24 @@ uv run mypy .
 - Python >=3.13 required
 - Uses uv for package management
 - Virtual environment managed automatically by uv
+
+## Available Tools
+
+### Article to Markdown Converter
+Convert web articles to clean markdown files with metadata and preserved images:
+
+```bash
+# Basic usage
+uv run python scripts/article_to_md.py <URL>
+
+# With custom output directory
+uv run python scripts/article_to_md.py <URL> --output-dir <directory>
+```
+
+Features:
+- Extracts main article content
+- Downloads and preserves images
+- Adds metadata (title, date, word count, etc.)
+- Creates organized folder structure
+
+For detailed usage, see [Article to Markdown Guide](docs/article-to-md-guide.md)
