@@ -5,8 +5,9 @@ import argparse
 import os
 import re
 import sys
+from datetime import datetime
 from pathlib import Path
-from typing import Optional, Tuple
+from typing import Dict, Optional, Tuple
 from urllib.parse import urljoin, urlparse
 from urllib.robotparser import RobotFileParser
 
@@ -38,6 +39,52 @@ def validate_html(content: str) -> bool:
         return bool(soup.find())
     except Exception:
         return False
+
+
+def extract_article_date(html_content: str) -> Optional[str]:
+    """Try to extract publication date from the HTML."""
+    soup = BeautifulSoup(html_content, 'html.parser')
+    
+    # Common meta tags for article dates
+    date_meta_names = [
+        'article:published_time', 'datePublished', 'publish_date',
+        'DC.date.issued', 'date', 'pubdate', 'publication_date'
+    ]
+    
+    for meta_name in date_meta_names:
+        # Check property attribute
+        meta = soup.find('meta', property=meta_name)
+        if not meta:
+            # Check name attribute
+            meta = soup.find('meta', {'name': meta_name})
+        
+        if meta and meta.get('content'):
+            try:
+                # Try to parse the date
+                date_str = meta.get('content')
+                # Handle ISO 8601 format
+                if 'T' in date_str:
+                    date_str = date_str.split('T')[0]
+                return date_str
+            except:
+                continue
+    
+    # Look for time tags with datetime attribute
+    time_tag = soup.find('time', datetime=True)
+    if time_tag:
+        date_str = time_tag.get('datetime')
+        if 'T' in date_str:
+            date_str = date_str.split('T')[0]
+        return date_str
+    
+    return None
+
+
+def count_words(text: str) -> int:
+    """Count words in the text content."""
+    # Remove extra whitespace and count words
+    words = text.split()
+    return len(words)
 
 
 def extract_article(html_content: str, url: str) -> Tuple[str, str]:
@@ -77,10 +124,11 @@ def download_image(img_url: str, dest_folder: Path) -> Optional[str]:
         return None
 
 
-def process_images(soup: BeautifulSoup, base_url: str, images_folder: Path) -> None:
-    """Download images and update their references in the HTML."""
+def process_images(soup: BeautifulSoup, base_url: str, images_folder: Path) -> int:
+    """Download images and update their references in the HTML. Returns image count."""
     images_folder.mkdir(parents=True, exist_ok=True)
     
+    image_count = 0
     for img in soup.find_all('img'):
         img_src = img.get('src')
         if not img_src:
@@ -91,17 +139,20 @@ def process_images(soup: BeautifulSoup, base_url: str, images_folder: Path) -> N
         local_filename = download_image(img_url, images_folder)
         if local_filename:
             img['src'] = f"images/{local_filename}"
+            image_count += 1
             
             if img.get('srcset'):
                 del img['srcset']
+    
+    return image_count
 
 
-def convert_to_markdown(html_content: str, base_url: str, dest_folder: Path) -> str:
-    """Convert HTML to markdown with image processing."""
+def convert_to_markdown(html_content: str, base_url: str, dest_folder: Path) -> Tuple[str, int]:
+    """Convert HTML to markdown with image processing. Returns markdown and image count."""
     soup = BeautifulSoup(html_content, 'html.parser')
     
     images_folder = dest_folder / "images"
-    process_images(soup, base_url, images_folder)
+    image_count = process_images(soup, base_url, images_folder)
     
     processed_html = str(soup)
     
@@ -116,7 +167,22 @@ def convert_to_markdown(html_content: str, base_url: str, dest_folder: Path) -> 
     
     markdown_content = re.sub(r'\n{3,}', '\n\n', markdown_content)
     
-    return markdown_content.strip()
+    return markdown_content.strip(), image_count
+
+
+def format_metadata(metadata: Dict[str, any]) -> str:
+    """Format metadata as markdown frontmatter."""
+    lines = []
+    lines.append("---")
+    lines.append(f"title: \"{metadata['title']}\"")
+    lines.append(f"source_url: {metadata['source_url']}")
+    if metadata['article_date']:
+        lines.append(f"article_date: {metadata['article_date']}")
+    lines.append(f"date_scraped: {metadata['date_scraped']}")
+    lines.append(f"word_count: {metadata['word_count']}")
+    lines.append(f"image_count: {metadata['image_count']}")
+    lines.append("---")
+    return "\n".join(lines)
 
 
 def fetch_article(url: str) -> Tuple[str, str]:
@@ -167,18 +233,42 @@ def main():
             print("Error: Could not extract article content", file=sys.stderr)
             sys.exit(1)
         
+        # Extract article date
+        article_date = extract_article_date(html_content)
+        
         kebab_title = create_kebab_case(title)
         dest_folder = Path(args.output_dir) / kebab_title
         dest_folder.mkdir(parents=True, exist_ok=True)
         
         print(f"Converting to markdown and downloading images...")
-        markdown_content = convert_to_markdown(article_html, final_url, dest_folder)
+        markdown_content, image_count = convert_to_markdown(article_html, final_url, dest_folder)
+        
+        # Extract text for word count (strip HTML tags)
+        text_soup = BeautifulSoup(article_html, 'html.parser')
+        text_content = text_soup.get_text()
+        word_count = count_words(text_content)
+        
+        # Prepare metadata
+        metadata = {
+            'title': title,
+            'source_url': args.url,
+            'article_date': article_date,
+            'date_scraped': datetime.now().strftime('%Y-%m-%d'),
+            'word_count': word_count,
+            'image_count': image_count
+        }
+        
+        # Format the final markdown with metadata and title
+        metadata_text = format_metadata(metadata)
+        final_markdown = f"{metadata_text}\n\n# {title}\n\n{markdown_content}"
         
         markdown_file = dest_folder / "article.md"
-        markdown_file.write_text(markdown_content, encoding='utf-8')
+        markdown_file.write_text(final_markdown, encoding='utf-8')
         
         print(f"✓ Article saved to {markdown_file}")
         print(f"✓ Title: {title}")
+        print(f"✓ Word count: {word_count}")
+        print(f"✓ Images: {image_count}")
         print(f"✓ Folder: {dest_folder}")
         
     except requests.RequestException as e:
