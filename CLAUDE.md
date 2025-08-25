@@ -106,6 +106,8 @@ Output structure:
 
 The tool creates self-contained HTML archives perfect for offline reading, research, and documentation.
 
+For detailed usage, see [HTML Page Downloader - User Guide](docs/html-downloader-guide.md)
+
 ### Mermaid Visualization Generator (Custom Command)
 Create intuitive Mermaid.js visualizations from markdown content:
 
@@ -127,3 +129,5 @@ The command automatically:
 3. Creates appropriate Mermaid.js visualizations
 4. Saves each diagram in a separate markdown file with context
 5. Organizes output in a dedicated folder structure
+
+For detailed usage, see [Mermaid Visualization Generator - User Guide](docs/mermaid-visualization-guide.md)

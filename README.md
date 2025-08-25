@@ -15,11 +15,12 @@
 
 ## 📋 Overview
 
-Claude Code Analyst is a comprehensive toolkit for capturing, converting, and visualizing web content. Built specifically for [Claude Code](https://claude.ai/code) integration, it provides powerful utilities to transform unstructured web articles into clean Markdown documents and generate insightful Mermaid.js visualizations.
+Claude Code Analyst is a comprehensive toolkit for capturing, converting, and visualizing web content. Built specifically for [Claude Code](https://claude.ai/code) integration, it provides powerful utilities to transform unstructured web content into clean Markdown documents, preserve complete HTML archives, and generate insightful Mermaid.js visualizations.
 
 ### Why Claude Code Analyst?
 
-- **📊 Content Intelligence**: Convert any web article into structured, analyzable Markdown with metadata
+- **🌐 Complete Content Capture**: Convert web articles to Markdown OR preserve as clean HTML archives
+- **📊 Content Intelligence**: Extract structured data with comprehensive metadata preservation
 - **🎨 Visual Understanding**: Automatically generate diagrams from text to reveal hidden patterns and relationships
 - **🤖 AI-Ready**: Seamlessly integrates with Claude Code for enhanced content analysis workflows
 - **🚀 Production Quality**: Respects robots.txt, handles edge cases, and produces clean, consistent output
@@ -29,18 +30,28 @@ Claude Code Analyst is a comprehensive toolkit for capturing, converting, and vi
 ### 🔄 Article to Markdown Converter
 Transform web articles into clean, portable Markdown files:
 
-- **Smart Extraction**: Uses Readability algorithm to extract main content while filtering out ads, navigation, and clutter
+- **Smart Extraction**: Uses Mozilla's Readability algorithm to extract main content while filtering out ads, navigation, and clutter
 - **Image Preservation**: Downloads and organizes images with proper relative path references
-- **Rich Metadata**: Captures title, publication date, word count, and source attribution
+- **Rich Metadata**: Captures title, publication date, word count, and source attribution in YAML frontmatter
 - **Respectful Scraping**: Checks robots.txt before processing any URL
-- **Clean Output**: Generates well-formatted Markdown with YAML frontmatter
+- **Clean Output**: Generates well-formatted Markdown with preserved text flow
+
+### 🌐 HTML Page Downloader
+Create self-contained HTML archives of web pages:
+
+- **Complete Preservation**: Downloads entire web pages as clean, readable HTML documents
+- **Smart Content Extraction**: Uses advanced algorithms to identify and extract main content
+- **Image Archiving**: Downloads all referenced images with proper HTTP headers to bypass basic protection
+- **Comprehensive Metadata**: Preserves OpenGraph, Twitter cards, publication dates, and source attribution
+- **Professional Styling**: Generates clean HTML5 output with embedded responsive CSS
+- **Offline Ready**: Creates fully self-contained archives perfect for offline reading and research
 
 ### 📊 Mermaid Visualization Generator
 Create intelligent visualizations from Markdown content:
 
-- **Auto-Analysis**: Identifies concepts, workflows, timelines, and relationships
+- **Auto-Analysis**: Identifies concepts, workflows, timelines, and relationships from text
 - **Multiple Diagram Types**: Generates flowcharts, timelines, mind maps, Sankey diagrams, and more
-- **Contextual Output**: Each visualization includes relevant source text
+- **Contextual Output**: Each visualization includes relevant source text and explanations
 - **Batch Processing**: Creates comprehensive visualization sets from single documents
 - **Claude Code Integration**: Available as a custom `/mermaid` command
 
@@ -79,13 +90,36 @@ uv run python scripts/article_to_md.py https://example.com/article --output-dir 
 ```
 markdown/
 └── article-title-kebab-case/
-    ├── article.md        # Clean Markdown with metadata
+    ├── article.md        # Clean Markdown with YAML frontmatter
     └── images/           # Preserved images
         ├── image1.jpg
         └── image2.png
 ```
 
-#### 2️⃣ Generate Visualizations (Claude Code)
+#### 2️⃣ Download HTML Archive
+
+```bash
+# Download complete HTML archive
+uv run python scripts/html_downloader.py https://example.com/article
+
+# Custom output directory
+uv run python scripts/html_downloader.py https://example.com/article --output-dir archives
+
+# Skip robots.txt check (use responsibly)
+uv run python scripts/html_downloader.py https://example.com/article --skip-robots
+```
+
+**Output Structure:**
+```
+html/
+└── article-title-kebab-case/
+    ├── index.html        # Self-contained HTML document
+    └── images/           # All downloaded images
+        ├── diagram1.png
+        └── chart2.svg
+```
+
+#### 3️⃣ Generate Visualizations (Claude Code)
 
 ```bash
 # In Claude Code, use the custom command
@@ -102,30 +136,44 @@ mermaid/
     └── README.md
 ```
 
-### 🔗 Complete Workflow Example
+### 🔗 Complete Workflow Examples
 
+#### Research & Analysis Workflow
 ```bash
-# Step 1: Capture web content
-uv run python scripts/article_to_md.py https://techblog.com/ai-article
+# Step 1: Create HTML archive for clean reading
+uv run python scripts/html_downloader.py https://research-paper.com/ai-study
 
-# Step 2: Generate visualizations (in Claude Code)
-/mermaid markdown/ai-article/article.md
+# Step 2: Create Markdown for text analysis  
+uv run python scripts/article_to_md.py https://research-paper.com/ai-study
 
-# Result: Full content analysis with text and visuals
+# Step 3: Generate visualizations (in Claude Code)
+/mermaid markdown/ai-study/article.md
+
+# Result: Complete research package with readable archive, processable text, and visual insights
+```
+
+#### Documentation Preservation
+```bash
+# For offline documentation that preserves original styling
+uv run python scripts/html_downloader.py https://docs.example.com/api-guide --output-dir documentation
+
+# For portable markdown documentation
+uv run python scripts/article_to_md.py https://docs.example.com/api-guide --output-dir documentation
 ```
 
 ## 📚 Documentation
 
 | Guide | Description |
 |-------|------------|
-| [Article Converter Guide](docs/article-to-md-guide.md) | Complete usage guide for web scraping tool |
+| [Article Converter Guide](docs/article-to-md-guide.md) | Complete guide for Markdown conversion tool |
+| [HTML Downloader Guide](docs/html-downloader-guide.md) | Comprehensive HTML archiving tool documentation |
 | [Mermaid Generator Guide](docs/mermaid-visualization-guide.md) | Creating visualizations with Claude Code |
 | [CLAUDE.md](CLAUDE.md) | Claude Code configuration and settings |
 | [Documentation Index](docs/README.md) | All available documentation |
 
 ## 🎯 Examples
 
-### Article Metadata Output
+### Article Metadata Output (Markdown)
 
 ```yaml
 ---
@@ -139,7 +187,31 @@ image_count: 12
 
 # Understanding Neural Networks
 
-Article content with preserved formatting...
+Article content with preserved formatting and ![relative image links](images/diagram.png)...
+```
+
+### HTML Archive Features
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Comprehensive metadata preservation -->
+    <meta name="source-url" content="https://original-url.com">
+    <meta property="og:title" content="Article Title">
+    <meta name="twitter:card" content="summary_large_image">
+    
+    <!-- Embedded responsive styling -->
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI'... }
+        img { max-width: 100%; height: auto; }
+    </style>
+</head>
+<body>
+    <!-- Clean, readable content with local image references -->
+    <img src="images/local-diagram.png" alt="Diagram">
+</body>
+</html>
 ```
 
 ### Generated Mermaid Visualization
@@ -162,28 +234,36 @@ timeline
 
 ```
 claude-code-analyst/
-├── scripts/                 # Python tools and utilities
-│   └── article_to_md.py    # Web article converter
-├── docs/                    # User guides and documentation
-│   ├── README.md           # Documentation index
+├── scripts/                    # Python tools and utilities
+│   ├── article_to_md.py       # Web article to Markdown converter
+│   └── html_downloader.py     # HTML page archiving tool
+├── docs/                       # User guides and documentation
+│   ├── README.md              # Documentation index
 │   ├── article-to-md-guide.md
+│   ├── html-downloader-guide.md
 │   └── mermaid-visualization-guide.md
-├── markdown/                # Converted articles (generated)
+├── html/                       # HTML archives (generated)
+│   └── article-title/
+│       ├── index.html
+│       └── images/
+├── markdown/                   # Converted articles (generated)
 │   └── article-title/
 │       ├── article.md
 │       └── images/
-├── mermaid/                # Visualizations (generated)
+├── mermaid/                   # Visualizations (generated)
 │   └── article-title/
 │       └── *.md
-├── backlog/                # Project planning
+├── backlog/                   # Project planning
 │   └── active-backlog.md
-├── tests/                  # Test suite
-├── .claude/                # Claude Code custom commands
+├── tests/                     # Test suite
+├── .claude/                   # Claude Code custom commands
 │   └── commands/
-│       └── mermaid.md
-├── CLAUDE.md              # Claude Code configuration
-├── pyproject.toml         # Project dependencies
-└── README.md             # This file
+│       ├── mermaid.md
+│       ├── download_html.md
+│       └── guide.md
+├── CLAUDE.md                  # Claude Code configuration
+├── pyproject.toml            # Project dependencies
+└── README.md                 # This file
 ```
 
 ## 🛠️ Development
@@ -208,6 +288,7 @@ uv run ruff format .
 - Use type hints for all functions
 - Write comprehensive docstrings
 - Maintain test coverage
+- Respect robots.txt and website terms of service
 
 ## 📦 Dependencies
 
@@ -220,53 +301,108 @@ uv run ruff format .
 
 ## 🎯 Use Cases
 
-- **📚 Research**: Archive and analyze online articles for research projects
-- **📖 Documentation**: Convert web documentation to portable Markdown
-- **📊 Content Analysis**: Extract insights from web content with visualizations
-- **🗂️ Knowledge Management**: Build a structured knowledge base from web sources
-- **📝 Blog Migration**: Extract content from various platforms
-- **🔍 Competitive Analysis**: Analyze competitor content and communications
+### 📚 Research & Academia
+- **Academic Papers**: Archive research papers as HTML for citation and clean Markdown for analysis
+- **Literature Reviews**: Convert multiple sources to consistent formats for comparative analysis
+- **Reference Management**: Build structured knowledge bases with metadata preservation
+
+### 📖 Documentation & Knowledge Management
+- **Technical Documentation**: Convert API docs to portable Markdown or preserve as styled HTML
+- **Team Knowledge Base**: Archive important articles and resources for offline access
+- **Competitive Intelligence**: Analyze competitor content and track changes over time
+
+### 📰 Content Analysis & Journalism
+- **News Archiving**: Preserve news articles before they change or disappear
+- **Content Migration**: Move content between platforms while maintaining formatting
+- **Fact Checking**: Create timestamped archives of web content for verification
+
+### 🏢 Business Intelligence
+- **Market Research**: Archive industry reports and analysis
+- **Competitive Analysis**: Track competitor announcements and strategy documents
+- **Compliance**: Maintain records of regulatory content and policy changes
 
 ## 🚦 Roadmap
 
-- [ ] Support for PDF articles
+### Completed Features ✅
+- [x] Article to Markdown conversion with metadata
+- [x] HTML page archiving with image preservation
+- [x] Mermaid visualization generation
+- [x] Claude Code integration
+- [x] Robots.txt compliance
+- [x] Comprehensive documentation
+
+### Planned Enhancements 🔄
+- [ ] PDF article processing support
 - [ ] Batch processing multiple URLs
-- [ ] Export to different formats (JSON, CSV)
-- [ ] Enhanced metadata extraction
-- [ ] Custom visualization templates
-- [ ] API endpoint support
+- [ ] Custom CSS themes for HTML archives
+- [ ] Export to additional formats (JSON, CSV, EPUB)
+- [ ] Enhanced metadata extraction (author detection, category classification)
+- [ ] API endpoint for programmatic access
+- [ ] Video/audio content handling
+- [ ] Archive compression (ZIP/TAR formats)
 
 ## 🤝 Contributing
 
 We welcome contributions! Please follow these guidelines:
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Follow PEP 8 and add type hints
-4. Write tests for new functionality
-5. Update documentation as needed
-6. Commit your changes (`git commit -m 'Add amazing feature'`)
-7. Push to the branch (`git push origin feature/amazing-feature`)
-8. Open a Pull Request
+1. **Fork the repository** and create a feature branch
+2. **Follow PEP 8** and add comprehensive type hints
+3. **Write tests** for new functionality (aim for >80% coverage)
+4. **Update documentation** for any user-facing changes
+5. **Respect ethical guidelines** - ensure tools are used responsibly
+6. **Test thoroughly** with various website types and edge cases
 
-See [CLAUDE.md](CLAUDE.md) for development guidelines.
+### Development Workflow
+
+```bash
+# 1. Setup development environment
+git clone https://github.com/your-username/claude-code-analyst.git
+cd claude-code-analyst
+uv sync
+
+# 2. Create feature branch
+git checkout -b feature/amazing-feature
+
+# 3. Make changes and test
+uv run pytest tests/
+uv run ruff check .
+
+# 4. Commit and push
+git commit -m 'Add amazing feature'
+git push origin feature/amazing-feature
+
+# 5. Open Pull Request
+```
+
+See [CLAUDE.md](CLAUDE.md) for detailed development guidelines.
 
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
+## 🔒 Ethical Usage
+
+This toolkit is designed for legitimate research, documentation, and analysis purposes. Please use responsibly:
+
+- **Respect robots.txt** and website terms of service
+- **Don't overload servers** - use reasonable delays between requests
+- **Respect copyright** - maintain proper attribution and don't republish without permission
+- **Be transparent** - the tools identify themselves with appropriate User-Agent strings
+
 ## 🙏 Acknowledgments
 
-- [Readability](https://github.com/mozilla/readability) for content extraction algorithms
-- [Mermaid.js](https://mermaid.js.org/) for diagram rendering
-- [Claude Code](https://claude.ai/code) for AI-powered development
+- [Mozilla Readability](https://github.com/mozilla/readability) for content extraction algorithms
+- [Mermaid.js](https://mermaid.js.org/) for beautiful diagram rendering
+- [Claude Code](https://claude.ai/code) for AI-powered development capabilities
 - [uv](https://docs.astral.sh/uv/) for modern Python package management
+- [BeautifulSoup](https://www.crummy.com/software/BeautifulSoup/) for robust HTML parsing
 
 ## 📮 Support
 
-- 📖 Check the [documentation](docs/) for detailed guides
-- 🐛 Report issues on the [GitHub issue tracker](https://github.com/your-username/claude-code-analyst/issues)
-- 💬 Join discussions in the [community forum](https://github.com/your-username/claude-code-analyst/discussions)
+- 📖 **Documentation**: Check the comprehensive [guides](docs/) for detailed instructions
+- 🐛 **Bug Reports**: Use the [GitHub issue tracker](https://github.com/your-username/claude-code-analyst/issues)
+- 💡 **Feature Requests**: Join discussions in the [community forum](https://github.com/your-username/claude-code-analyst/discussions)
+- 🚀 **Claude Code**: Integrated custom commands for seamless workflow
 
 ---
 
