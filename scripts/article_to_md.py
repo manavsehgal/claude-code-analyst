@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Convert web articles to markdown format with image preservation."""
+"""Convert web articles or local HTML files to markdown format with image preservation."""
 
 import argparse
 import os
@@ -183,6 +183,12 @@ def format_metadata(metadata: Dict[str, any]) -> str:
     return "\n".join(lines)
 
 
+def is_url(source: str) -> bool:
+    """Check if the source is a URL or a file path."""
+    parsed = urlparse(source)
+    return bool(parsed.scheme and parsed.netloc)
+
+
 def fetch_article(url: str) -> Tuple[str, str]:
     """Fetch the article from the URL."""
     headers = {
@@ -195,14 +201,28 @@ def fetch_article(url: str) -> Tuple[str, str]:
     return response.text, response.url
 
 
+def read_local_html(file_path: str) -> Tuple[str, str]:
+    """Read HTML content from a local file."""
+    path = Path(file_path).resolve()  # Convert to absolute path
+    if not path.exists():
+        raise FileNotFoundError(f"File not found: {file_path}")
+    
+    if not path.is_file():
+        raise ValueError(f"Path is not a file: {file_path}")
+    
+    html_content = path.read_text(encoding='utf-8')
+    # Return content and the file path as base URL for relative images
+    return html_content, path.parent.as_uri()
+
+
 def main():
-    """Main function to convert web article to markdown."""
+    """Main function to convert web article or local HTML file to markdown."""
     parser = argparse.ArgumentParser(
-        description="Convert web articles to markdown format"
+        description="Convert web articles or local HTML files to markdown format"
     )
     parser.add_argument(
-        "url",
-        help="URL of the article to convert"
+        "source",
+        help="URL of the article to convert or path to local HTML file"
     )
     parser.add_argument(
         "--output-dir",
@@ -212,13 +232,20 @@ def main():
     
     args = parser.parse_args()
     
-    if not check_robots_txt(args.url):
-        print(f"Error: robots.txt disallows fetching {args.url}", file=sys.stderr)
+    is_source_url = is_url(args.source)
+    
+    # Only check robots.txt for URLs
+    if is_source_url and not check_robots_txt(args.source):
+        print(f"Error: robots.txt disallows fetching {args.source}", file=sys.stderr)
         sys.exit(1)
     
     try:
-        print(f"Fetching article from {args.url}...")
-        html_content, final_url = fetch_article(args.url)
+        if is_source_url:
+            print(f"Fetching article from {args.source}...")
+            html_content, final_url = fetch_article(args.source)
+        else:
+            print(f"Reading HTML file from {args.source}...")
+            html_content, final_url = read_local_html(args.source)
         
         if not validate_html(html_content):
             print("Error: Invalid HTML content", file=sys.stderr)
@@ -249,7 +276,7 @@ def main():
         # Prepare metadata
         metadata = {
             'title': title,
-            'source_url': args.url,
+            'source_url': args.source,
             'article_date': article_date,
             'date_scraped': datetime.now().strftime('%Y-%m-%d'),
             'word_count': word_count,
@@ -269,8 +296,8 @@ def main():
         print(f"✓ Images: {image_count}")
         print(f"✓ Folder: {dest_folder}")
         
-    except requests.RequestException as e:
-        print(f"Error fetching URL: {e}", file=sys.stderr)
+    except (requests.RequestException, FileNotFoundError, ValueError) as e:
+        print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
     except Exception as e:
         print(f"Unexpected error: {e}", file=sys.stderr)
