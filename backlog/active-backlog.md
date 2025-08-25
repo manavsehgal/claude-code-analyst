@@ -22,3 +22,7 @@
 
 [x] Make the article_to_md script available as a tool use for Claude Code by updating CLAUDE.md crisply and referencing docs/article-to-md-guide.md if required.
     **Completed**: Added "Available Tools" section to CLAUDE.md with comprehensive documentation for the article_to_md script. Updated docs/article-to-md-guide.md to include new metadata features (YAML frontmatter with title, source URL, article date, scrape date, word count, and image count). The tool is now properly documented and available for Claude Code usage with clear usage examples and reference to the detailed guide.
+
+[x] Update the scripts/article_to_md.py to not add extra newlines to wrap text in markdown and only follow the HTML formatting to decide when to add newlines.
+    **Completed**: Removed artificial text wrapping from the markdownify conversion by eliminating `wrap=True` and `wrap_width=80` parameters from the `md()` function call in `convert_to_markdown()`. The script now preserves natural text flow based on HTML structure rather than forcing line breaks at fixed character widths. Verified with example.com that text now flows naturally without arbitrary wrapping, maintaining readability while respecting the original HTML formatting for newline placement.
+

@@ -160,9 +160,7 @@ def convert_to_markdown(html_content: str, base_url: str, dest_folder: Path) -> 
         processed_html,
         heading_style="ATX",
         bullets="-",
-        code_language="python",
-        wrap=True,
-        wrap_width=80
+        code_language="python"
     )
     
     markdown_content = re.sub(r'\n{3,}', '\n\n', markdown_content)

@@ -4,17 +4,21 @@
     "type": "split",
     "children": [
       {
-        "id": "86081e52f80a6c06",
+        "id": "9bfa8cdb85eaf785",
         "type": "tabs",
         "children": [
           {
-            "id": "af28cc9ad2611fa0",
+            "id": "33a6e2bc7c95a26d",
             "type": "leaf",
             "state": {
-              "type": "empty",
-              "state": {},
+              "type": "markdown",
+              "state": {
+                "file": "markdown/america-is-missing-the-new-labor-economy-robotics-part-1-semianalysis/article.md",
+                "mode": "source",
+                "source": false
+              },
               "icon": "lucide-file",
-              "title": "New tab"
+              "title": "article"
             }
           }
         ]
@@ -74,7 +78,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 476.5
   },
   "right": {
     "id": "d95bd06771ac7489",
@@ -90,6 +94,7 @@
             "state": {
               "type": "backlink",
               "state": {
+                "file": "markdown/america-is-missing-the-new-labor-economy-robotics-part-1-semianalysis/article.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -99,7 +104,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks"
+              "title": "Backlinks for article"
             }
           },
           {
@@ -108,11 +113,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
+                "file": "markdown/america-is-missing-the-new-labor-economy-robotics-part-1-semianalysis/article.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Outgoing links"
+              "title": "Outgoing links from article"
             }
           },
           {
@@ -136,12 +142,13 @@
             "state": {
               "type": "outline",
               "state": {
+                "file": "markdown/america-is-missing-the-new-labor-economy-robotics-part-1-semianalysis/article.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline"
+              "title": "Outline of article"
             }
           }
         ]
@@ -162,13 +169,32 @@
       "bases:Create new base": false
     }
   },
-  "active": "af28cc9ad2611fa0",
+  "active": "ec5d7b71739303d4",
   "lastOpenFiles": [
+    "markdown/robotics-levels-of-autonomy-semianalysis/article.md",
+    "markdown/america-is-missing-the-new-labor-economy-robotics-part-1-semianalysis/article.md",
+    "markdown/america-is-missing-the-new-labor-economy-robotics-part-1-semianalysis/images/3100-chinas-annually-installed-robots-3.png",
+    "markdown/america-is-missing-the-new-labor-economy-robotics-part-1-semianalysis/images/3000-chinese-govt-subsidiesGIMP.png",
+    "markdown/america-is-missing-the-new-labor-economy-robotics-part-1-semianalysis/images/2900-annual-installations-with-china.png",
+    "markdown/america-is-missing-the-new-labor-economy-robotics-part-1-semianalysis/images/2750-Market-Shares.png",
+    "markdown/america-is-missing-the-new-labor-economy-robotics-part-1-semianalysis/images/annual_install.png",
+    "markdown/america-is-missing-the-new-labor-economy-robotics-part-1-semianalysis/images/2600-shares-by-industry.png",
+    "markdown/america-is-missing-the-new-labor-economy-robotics-part-1-semianalysis/images/2500-shares-of-robot-densities.png",
+    "markdown/america-is-missing-the-new-labor-economy-robotics-part-1-semianalysis/images/2400-EV-breakdwonGIMP.jpg",
+    "markdown/america-is-missing-the-new-labor-economy-robotics-part-1-semianalysis/images/2300-chinas-mineral-shares.png",
+    "markdown/america-is-missing-the-new-labor-economy-robotics-part-1-semianalysis/images/2200-GAOGIMP.png",
+    "markdown/america-is-missing-the-new-labor-economy-robotics-part-1-semianalysis/images",
+    "markdown/america-is-missing-the-new-labor-economy-robotics-part-1-semianalysis",
+    "markdown/robotics-levels-of-autonomy-semianalysis/images",
+    "markdown/robotics-levels-of-autonomy-semianalysis",
     "markdown/h100-vs-gb200-nvl72-training-benchmarks-power-tco-and-reliability-analysis-software-improvement-over-time-semianalysis/article.md",
-    "CLAUDE.md.tmp.20288.1756092773584",
-    "docs/article-to-md-guide.md.tmp.20288.1756092762166",
-    "markdown/example-domain/images",
-    "markdown/example-domain/article.md",
-    "markdown/example-domain"
+    "markdown/h100-vs-gb200-nvl72-training-benchmarks-power-tco-and-reliability-analysis-software-improvement-over-time-semianalysis/images",
+    "markdown/h100-vs-gb200-nvl72-training-benchmarks-power-tco-and-reliability-analysis-software-improvement-over-time-semianalysis",
+    "backlog/active-backlog.md.tmp.29874.1756094667775",
+    "test-output/example-domain/images",
+    "test-output/example-domain/article.md",
+    "test-output/example-domain",
+    "test-output",
+    "markdown/example-domain/article.md"
   ]
 }
