@@ -23,7 +23,7 @@ height: 1080
 # - 150: Good quality for most uses
 # - 300: Print quality
 # - 600-1200: High-quality print/professional use
-dpi: 300
+dpi: 600
 
 # Background color (for PNG format)
 # Options: "white", "transparent", or any valid CSS color
@@ -37,7 +37,7 @@ theme: "default"
 # - 1: Standard resolution
 # - 2: 2x resolution (recommended for high-quality)
 # - 3: 3x resolution (very high quality, larger files)
-scale: 2
+scale: 3
 
 # Timeout for diagram rendering (in milliseconds)
 # Increase if complex diagrams are timing out

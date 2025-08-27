@@ -4,11 +4,11 @@
     "type": "split",
     "children": [
       {
-        "id": "9d25e0e02af3819b",
+        "id": "d86d76a3f8ffebc9",
         "type": "tabs",
         "children": [
           {
-            "id": "6c6e26c95663a9ea",
+            "id": "3559bb3bcfe24003",
             "type": "leaf",
             "state": {
               "type": "empty",
@@ -162,8 +162,10 @@
       "bases:Create new base": false
     }
   },
-  "active": "6c6e26c95663a9ea",
+  "active": "3559bb3bcfe24003",
   "lastOpenFiles": [
+    "projects/llm-architectures-on-aws/report-03.md",
+    "projects/llm-architectures-on-aws/diff.md",
     "projects/llm-architectures-on-aws/report-02.md",
     "projects/llm-architectures-on-aws/report-01.md",
     "transcripts/train-llm-sagemaker-2024/train-llm-sagemaker-2024.md",
@@ -204,11 +206,9 @@
     "mermaid/llm-architectures-on-aws-report/07-implementation-priority-matrix.md",
     "mermaid/llm-architectures-on-aws-report/05-performance-comparison-charts.md",
     "mermaid/llm-architectures-on-aws-report/02-aws-service-mapping.md",
-    "mermaid/llm-architectures-on-aws-report/01-llm-architecture-evolution.md",
     "mermaid/llm-architectures-on-aws-report",
     "projects/llm-architectures-on-aws/report.md.tmp.66271.1756268222248",
     "projects/llm-architectures-on-aws/report.md.tmp.66271.1756268214520",
-    "projects/llm-architectures-on-aws/instructions.md.tmp.66271.1756267799896",
-    "transcripts/matt-keynote-reinvent-2024/matt-keynote-reinvent-2024.md"
+    "projects/llm-architectures-on-aws/instructions.md.tmp.66271.1756267799896"
   ]
 }
