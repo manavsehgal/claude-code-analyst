@@ -149,7 +149,10 @@ uv run python scripts/article_to_md.py https://research-paper.com/ai-study
 # Step 3: Generate visualizations (in Claude Code)
 /mermaid markdown/ai-study/article.md
 
-# Result: Complete research package with readable archive, processable text, and visual insights
+# Step 4: Convert diagrams to presentation-ready images
+uv run python scripts/mermaid_to_image.py mermaid/ai-study/01-workflow.md --format png --theme dark
+
+# Result: Complete research package with readable archive, processable text, visual insights, and presentation-ready images
 ```
 
 #### Documentation Preservation
