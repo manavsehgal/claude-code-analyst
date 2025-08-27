@@ -164,6 +164,15 @@
   },
   "active": "17b3b10543d238d6",
   "lastOpenFiles": [
+    "transcripts/matt-keynote-reinvent-2024/matt-keynote-reinvent-2024.md",
+    "transcripts/swami-keynote-reinvent-2024/swami-keynote-reinvent-2024.md",
+    "projects/llm-architectures-on-aws/instructions.md",
+    "projects/instructions.md",
+    "projects/llm-architectures-on-aws",
+    "projects/llm-archtecture-aws.md",
+    "projects",
+    "transcripts/matt-keynote-reinvent-2024",
+    "transcripts/swami-keynote-reinvent-2024",
     "markdown/the-big-llm-architecture-comparison/article.md",
     "markdown/building-effective-ai-agents-anthropic/article.md",
     "backlog/active-backlog.md.tmp.25936.1756254057530",
@@ -184,10 +193,6 @@
     "markdown/robotics-levels-of-autonomy-semianalysis/article.md",
     "mermaid/prompting-agents/08-unintended-side-effects.md",
     "markdown/the-big-llm-architecture-comparison/images",
-    "markdown/the-big-llm-architecture-comparison",
-    "html/the-big-llm-architecture-comparison/index.html",
-    "html/the-big-llm-architecture-comparison/images",
-    "html/the-big-llm-architecture-comparison",
     "mermaid/prompting-agents/07-tool-design-principles.md",
     "mermaid/prompting-agents/06-evaluation-framework.md",
     "mermaid/prompting-agents/05-context-window-strategies.md",
@@ -204,10 +209,6 @@
     "docs/README.md",
     "docs/mermaid-visualization-guide.md",
     "mermaid/america-is-missing-the-new-labor-economy-robotics/03-robot-types-hierarchy.md",
-    "mermaid/america-is-missing-the-new-labor-economy-robotics/02-supply-chain-dependencies.md",
-    "mermaid/america-is-missing-the-new-labor-economy-robotics/11-executive-dashboard.md",
-    "markdown/america-is-missing-the-new-labor-economy-robotics-part-1-semianalysis/article.md",
-    "mermaid/america-is-missing-the-new-labor-economy-robotics/10-country-strategies-outcomes.md",
-    "mermaid/america-is-missing-the-new-labor-economy-robotics/README.md"
+    "mermaid/america-is-missing-the-new-labor-economy-robotics/02-supply-chain-dependencies.md"
   ]
 }
