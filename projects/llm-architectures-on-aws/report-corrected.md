@@ -19,7 +19,7 @@ The LLM architecture evolution demonstrates remarkable consistency in foundation
 | Innovation | Primary Benefit | Implementation Complexity | AWS Service Alignment |
 |------------|-----------------|-------------------------|----------------------|
 | **Mixture-of-Experts (MoE)** | 85% parameter reduction during inference | High | Amazon SageMaker, EC2 with specialized instances |
-| **Multi-Head Latent Attention (MLA)** | 40-60% KV cache memory reduction | Medium-High | Amazon ElastiCache, EC2 memory-optimized instances |
+| **Multi-Head Latent Attention (MLA)** | significant KV cache memory reduction (DeepSeek reports large reductions, exact % depends on configuration) | Medium-High | Amazon ElastiCache, EC2 memory-optimized instances |
 | **Grouped-Query Attention (GQA)** | 25-40% attention computation reduction | Medium | EC2 compute-optimized instances |
 | **Sliding Window Attention** | Up to 75% KV cache memory savings | Low-Medium | EC2 instances with optimized memory configurations |
 | **Advanced Normalization** | Improved training stability | Low | Amazon SageMaker training jobs |
@@ -95,7 +95,7 @@ Modern LLM architectures demand sophisticated memory management strategies, part
 
 2. **Mixture-of-Experts Serving**
    - **Expert Caching Strategy:** Amazon ElastiCache Redis clusters for frequently accessed experts
-   - **Cold Expert Storage:** S3 with millisecond retrieval for infrequently accessed experts
+   - **Cold Expert Storage:** S3 for artifact storage (not hot-path retrieval) for infrequently accessed experts
    - **Router Optimization:** Application Load Balancer with custom routing for expert selection
 
 ### Inference Scaling Patterns
@@ -156,7 +156,7 @@ API Gateway → Lambda (preprocessing) → SageMaker Endpoint → ElastiCache (r
 
 **Trainium2 Ultra Servers:**
 - **Massive Scale:** 64 Trainium2 chips in single node (83 petaflops)
-- **Latency Optimization:** Single-node deployment for trillion-parameter models
+- **Latency Optimization:** 64-chip servers can contribute to trillion-parameter training in distributed setups
 - **Training Cluster Enhancement:** Enables larger distributed training configurations
 - **Enterprise Readiness:** Production deployment for frontier model development
 
@@ -307,7 +307,7 @@ Amazon Bedrock's unified API provides critical advantages for organizations depl
 2. **Trainium2 Deployment:** Leverage 30-40% price performance advantage for AI training and inference
 3. **Aurora DSQL Migration:** Implement next-generation globally distributed database for 4x performance improvement
 4. **S3 Table Buckets Adoption:** Achieve 3x query performance improvement for analytics workloads
-5. **Model Distillation Implementation:** Deploy 500% faster, 75% cheaper inference through Bedrock automation
+5. **Model Distillation Implementation:** Deploy 500% faster, lower cost potential (varies by setup) inference through Bedrock automation
 6. **Bedrock Security Framework:** Implement SOC/ISO/HIPAA compliant model deployment with zero compliance overhead
 7. **MoE Architecture Adoption:** Implement DeepSeek-V3 style MoE for 60-85% inference cost reduction
 8. **SageMaker HyperPod Migration:** Deploy flexible training plans for foundation model development
@@ -332,7 +332,7 @@ Amazon Bedrock's unified API provides critical advantages for organizations depl
 **Bedrock Prompt Caching:**
 - **Capability:** Dynamic caching of frequently repeated prompt prefixes
 - **Performance Gain:** Up to 85% latency reduction for cached prompts
-- **Cost Impact:** Up to 90% cost reduction for repetitive prompt scenarios
+- **Cost Impact:** Significant cost reduction depending on prompt reuse patterns for repetitive prompt scenarios
 - **LLM Use Cases:** Legal document analysis, technical documentation processing
 
 **Intelligent Prompt Routing:**
@@ -342,8 +342,8 @@ Amazon Bedrock's unified API provides critical advantages for organizations depl
 - **Enterprise Benefit:** Eliminates manual model selection overhead
 
 **Model Distillation on Bedrock:**
-- **Performance:** 500% faster inference with distilled models
-- **Cost Efficiency:** 75% cheaper than full-scale model deployment
+- **Performance:** faster inference potential (varies by setup) with distilled models
+- **Cost Efficiency:** lower cost potential (varies by setup) than full-scale model deployment
 - **Knowledge Transfer:** Maintains accuracy while reducing computational requirements
 
 ### Revolutionary Database Architecture: Aurora DSQL
@@ -386,8 +386,8 @@ Amazon Bedrock's unified API provides critical advantages for organizations depl
 ### Enhanced RAG Architecture Capabilities
 
 **Model Distillation on Bedrock:**
-- **Performance Gains:** 500% faster inference with distilled models
-- **Cost Reduction:** 75% cheaper than full-scale model deployment
+- **Performance Gains:** faster inference potential (varies by setup) with distilled models
+- **Cost Reduction:** lower cost potential (varies by setup) than full-scale model deployment
 - **Automated Process:** Complete model distillation through Bedrock platform
 - **ROI Transformation:** Changes unviable applications into profitable deployments
 - **Expertise Retention:** Maintains specialized knowledge in smaller, efficient models
@@ -406,7 +406,7 @@ Amazon Bedrock's unified API provides critical advantages for organizations depl
 
 **Kendra GenAI Index:**
 - **Connector Support:** 40+ enterprise data source integrations
-- **Vector Optimization:** Automated embedding model selection and dimension tuning
+- **Vector Optimization:** Managed retrieval with reduced RAG setup (embedding choice/dimensions not auto-tuned)
 - **Cross-Platform Integration:** Seamless integration with Amazon Q Business applications
 
 **Bedrock Data Automation:**
@@ -424,9 +424,9 @@ Amazon Bedrock's unified API provides critical advantages for organizations depl
 - **Spot instance utilization:** Additional 60-70% cost savings on validation workloads
 
 **Inference Cost Optimization:**
-- **Prompt Caching:** Up to 90% cost reduction for repetitive query patterns
+- **Prompt Caching:** Significant cost reduction depending on prompt reuse patterns for repetitive query patterns
 - **Intelligent Routing:** 30% cost reduction through automatic model optimization
-- **Model Distillation:** 75% cheaper deployment with 500% performance improvement
+- **Model Distillation:** lower cost potential (varies by setup) deployment with 500% performance improvement
 - **MLA deployment:** 40-60% memory cost reduction for KV cache optimization
 
 ## Technical Implementation Guidelines
@@ -449,7 +449,7 @@ Inference Configuration:
   instance_type: inf2.8xlarge (for 20B+ active parameters)
   scaling_policy: Target tracking on GPU utilization
   load_balancing: Application Load Balancer with expert-aware routing
-  caching: ElastiCache Redis for KV cache and expert weights
+  caching: KV cache on-device/host memory (Redis only for response/result caching) and expert weights
 ```
 
 ### Security and Compliance Considerations
@@ -522,10 +522,10 @@ Amazon EC2 provides the fundamental compute infrastructure that underpins LLM tr
 **P6 Instance Family (NVIDIA Blackwell GPUs - Latest Generation):**
 
 **P6e-GB200 UltraServers (Frontier AI Training):**
-- **Ultimate Performance:** Up to 72 NVIDIA Grace Blackwell GPUs delivering 360 petaflops of FP8 compute
+- **Ultimate Performance:** Up to 72 NVIDIA Blackwell GPUs delivering 360 petaflops of FP8 compute
 - **Massive Memory:** 13.4 TB total high-bandwidth memory (HBM3e) for trillion-parameter models
 - **Ultra-High Connectivity:** 130 TB/s low-latency NVLink connectivity for seamless GPU communication
-- **Networking Breakthrough:** 28.8 Tbps Elastic Fabric Adapter networking for distributed training
+- **Networking Breakthrough:** EFA up to 3.2 Tbps per instance (documented); intra-system NVLink offers much higher bandwidth for distributed training
 - **Scale Capability:** Deployable in EC2 UltraClusters scaling to tens of thousands of GPUs
 - **LLM Use Case:** Purpose-built for training trillion-parameter frontier models and next-generation AI
 
