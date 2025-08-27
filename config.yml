@@ -31,7 +31,7 @@ background_color: "white"
 
 # Mermaid theme
 # Options: "default", "dark", "forest", "neutral"
-theme: "default"
+theme: "neutral"
 
 # Scale factor for higher resolution rendering
 # - 1: Standard resolution
