@@ -198,6 +198,7 @@ def find_images_in_content(content: str) -> List[str]:
     soup = BeautifulSoup(content, 'html.parser')
     image_urls = []
     
+    # Find images in <img> tags
     for img in soup.find_all('img'):
         src = img.get('src')
         if src:
@@ -219,6 +220,12 @@ def find_images_in_content(content: str) -> List[str]:
                 src_url = src_item.strip().split()[0]
                 if src_url not in image_urls:
                     image_urls.append(src_url)
+    
+    # Find images in anchor tags with class "image-link" (Substack pattern)
+    for anchor in soup.find_all('a', class_='image-link'):
+        href = anchor.get('href')
+        if href and ('image' in href or 'substackcdn.com' in href or '.png' in href or '.jpg' in href or '.jpeg' in href or '.gif' in href or '.webp' in href):
+            image_urls.append(href)
     
     # Find background images in style attributes
     style_imgs = re.findall(r'background-image:\s*url\(["\']?([^"\']+)["\']?\)', content)
@@ -288,6 +295,7 @@ def update_image_references(content: str, image_mapping: Dict[str, str], base_ur
     """Update image references to point to local files."""
     soup = BeautifulSoup(content, 'html.parser')
     
+    # First handle regular <img> tags
     for img in soup.find_all('img'):
         original_src = img.get('src')
         if not original_src:
@@ -311,6 +319,23 @@ def update_image_references(content: str, image_mapping: Dict[str, str], base_ur
             # Remove srcset to avoid confusion
             if img.get('srcset'):
                 del img['srcset']
+    
+    # Handle Substack-style images wrapped in anchor tags
+    for anchor in soup.find_all('a', class_='image-link'):
+        href = anchor.get('href')
+        if href and href in image_mapping:
+            # Create a new img tag with the local image
+            new_img = soup.new_tag('img')
+            new_img['src'] = f"images/{image_mapping[href]}"
+            
+            # Preserve any figure caption if it exists
+            figure = anchor.find_parent('figure')
+            if figure:
+                # Replace the anchor with the img tag
+                anchor.replace_with(new_img)
+            else:
+                # Replace the entire anchor with the img tag
+                anchor.replace_with(new_img)
     
     return str(soup)
 
