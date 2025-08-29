@@ -1,0 +1,20 @@
+# Markdown Chat Configuration
+# This file defines the folders to be displayed in the navigation
+
+navigation:
+  folders:
+    - name: Projects
+      path: projects
+      description: Analyst AI projects
+    - name: Transcripts
+      path: transcripts
+      description: Video transcripts
+    - name: Markdown
+      path: markdown
+      description: Converted markdown files
+
+# Display settings
+display:
+  show_file_sizes: true
+  show_modification_dates: true
+  recursive_search: true  # When true, lists all markdown files recursively in selected folder
