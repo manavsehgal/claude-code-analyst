@@ -553,13 +553,19 @@ Here's my question: {user_message}"""
     
     def run(self) -> None:
         """Main chatbot loop."""
-        # Enhanced welcome banner with system status
+        # Enhanced welcome banner with improved system status detection
         system_status = ""
         if CLAUDE_SDK_AVAILABLE:
-            if os.getenv('ANTHROPIC_API_KEY'):
-                system_status = "[bold green]✓ Ready for AI chat[/bold green]"
+            config_status = _detect_claude_config()
+            if config_status['has_valid_config']:
+                method_name = {
+                    'api_key': 'API Key',
+                    'bedrock': 'Bedrock',
+                    'pro_max': 'Pro/Max'
+                }.get(config_status['method'], 'Unknown')
+                system_status = f"[bold green]✓ Ready for AI chat ({method_name})[/bold green]"
             else:
-                system_status = "[bold yellow]⚠️  API key not configured[/bold yellow]"
+                system_status = "[bold yellow]⚠️  Configuration needed[/bold yellow]"
         else:
             system_status = "[bold red]❌ SDK not available[/bold red]"
         
@@ -661,7 +667,10 @@ Here's my question: {user_message}"""
                             "[bold red]Claude Code SDK not available[/bold red]\n\n" +
                             "[bold]To enable AI chat:[/bold]\n" +
                             "[dim]1. Install the SDK:[/dim] [bold cyan]uv add claude-code-sdk[/bold cyan]\n" +
-                            "[dim]2. Set API key:[/dim] [bold cyan]export ANTHROPIC_API_KEY=your_key[/bold cyan]\n" +
+                            "[dim]2. Configure authentication (choose one):[/dim]\n" +
+                            "[dim]   • API Key:[/dim] [bold cyan]export ANTHROPIC_API_KEY=your_key[/bold cyan]\n" +
+                            "[dim]   • Pro/Max Plan:[/dim] [bold cyan]claude[/bold cyan] [dim](authenticate in CLI)[/dim]\n" +
+                            "[dim]   • Bedrock:[/dim] [bold cyan]export CLAUDE_CODE_USE_BEDROCK=1[/bold cyan] [dim](+ AWS config)[/dim]\n" +
                             "[dim]3. Restart the app[/dim]\n\n" +
                             "[dim]You can still use file management commands (list, load, show)[/dim]",
                             title="⚠️  SDK Required",
@@ -675,6 +684,95 @@ Here's my question: {user_message}"""
                 break
             except Exception as e:
                 self.console.print(f"[bold red]❌ An error occurred:[/bold red] {e}")
+
+
+def _detect_claude_config():
+    """Detect which Claude Code SDK authentication method is configured."""
+    config_info = {
+        'has_valid_config': False,
+        'status_message': 'No configuration detected',
+        'method': None
+    }
+    
+    # Method 1: Check for Anthropic API Key
+    if os.getenv('ANTHROPIC_API_KEY'):
+        config_info['has_valid_config'] = True
+        config_info['status_message'] = 'Anthropic API Key configured'
+        config_info['method'] = 'api_key'
+        return config_info
+    
+    # Method 2: Check for Amazon Bedrock configuration
+    if os.getenv('CLAUDE_CODE_USE_BEDROCK'):
+        # Check for AWS credentials
+        aws_configured = False
+        
+        # Check for AWS environment variables
+        if (os.getenv('AWS_ACCESS_KEY_ID') and os.getenv('AWS_SECRET_ACCESS_KEY')):
+            aws_configured = True
+        
+        # Check for AWS CLI credentials (basic check)
+        aws_config_path = os.path.expanduser('~/.aws/credentials')
+        aws_config_dir = os.path.expanduser('~/.aws/config')
+        if os.path.isfile(aws_config_path) or os.path.isfile(aws_config_dir):
+            aws_configured = True
+        
+        if aws_configured:
+            config_info['has_valid_config'] = True
+            config_info['status_message'] = 'Amazon Bedrock configured'
+            config_info['method'] = 'bedrock'
+            return config_info
+        else:
+            config_info['has_valid_config'] = False
+            config_info['status_message'] = 'Bedrock enabled but AWS credentials not found'
+            return config_info
+    
+    # Method 3: Check for Pro/Max plan authentication
+    # This is harder to detect programmatically, but we can check for Claude CLI presence
+    # and attempt to infer if user might be authenticated
+    
+    # Check if claude CLI might be available (common installation paths)
+    claude_cli_paths = [
+        '/usr/local/bin/claude',
+        '/opt/homebrew/bin/claude',
+        os.path.expanduser('~/.local/bin/claude'),
+    ]
+    
+    claude_cli_available = False
+    for path in claude_cli_paths:
+        if os.path.isfile(path):
+            claude_cli_available = True
+            break
+    
+    # Also check if claude is in PATH
+    if not claude_cli_available:
+        try:
+            import subprocess
+            result = subprocess.run(['which', 'claude'], capture_output=True, text=True, timeout=2)
+            if result.returncode == 0 and result.stdout.strip():
+                claude_cli_available = True
+        except (subprocess.TimeoutExpired, subprocess.SubprocessError, FileNotFoundError):
+            pass
+    
+    if claude_cli_available:
+        # Claude CLI is available, user might be authenticated via Pro/Max plan
+        # We can't easily check if they're actually logged in without running claude commands
+        # So we'll be optimistic and assume they might have valid authentication
+        config_info['has_valid_config'] = True
+        config_info['status_message'] = 'Claude CLI detected - Pro/Max authentication possible'
+        config_info['method'] = 'pro_max'
+        return config_info
+    
+    # If none of the above, no valid configuration detected
+    possible_reasons = []
+    if not os.getenv('ANTHROPIC_API_KEY'):
+        possible_reasons.append('No API key')
+    if not os.getenv('CLAUDE_CODE_USE_BEDROCK'):
+        possible_reasons.append('Bedrock not enabled')
+    if not claude_cli_available:
+        possible_reasons.append('Claude CLI not found')
+    
+    config_info['status_message'] = f"Missing: {', '.join(possible_reasons)}"
+    return config_info
 
 
 def main():
@@ -695,16 +793,28 @@ def main():
         main_console.print(f"[bold red]❌ Directory not found:[/bold red] {args.directory}")
         sys.exit(1)
     
-    # Check for ANTHROPIC_API_KEY environment variable
-    if not os.getenv('ANTHROPIC_API_KEY') and CLAUDE_SDK_AVAILABLE:
-        warning_panel = Panel(
-            "[bold yellow]⚠️  ANTHROPIC_API_KEY environment variable not set[/bold yellow]\n" +
-            "You may need to set this for Claude Code SDK to work properly.\n\n" +
-            "[dim]export ANTHROPIC_API_KEY=your_key_here[/dim]",
-            title="[yellow]Configuration Warning[/yellow]",
-            border_style="yellow"
-        )
-        main_console.print(warning_panel)
+    # Check Claude Code SDK configuration and show warnings only if no valid configuration is detected
+    if CLAUDE_SDK_AVAILABLE:
+        config_status = _detect_claude_config()
+        if not config_status['has_valid_config']:
+            config_warning_panel = Panel(
+                "[bold yellow]⚠️  Claude Code SDK Configuration[/bold yellow]\n\n" +
+                "No valid configuration detected. Claude Code SDK supports three authentication methods:\n\n" +
+                "[bold]1. Anthropic API Key (Direct):[/bold]\n" +
+                "[dim]   export ANTHROPIC_API_KEY=your_key_here[/dim]\n\n" +
+                "[bold]2. Pro/Max Plan (Web Authentication):[/bold]\n" +
+                "[dim]   Run 'claude' in terminal and authenticate with your Pro/Max account[/dim]\n" +
+                "[dim]   Visit: https://support.anthropic.com/en/articles/11145838[/dim]\n\n" +
+                "[bold]3. Amazon Bedrock (AWS):[/bold]\n" +
+                "[dim]   export CLAUDE_CODE_USE_BEDROCK=1[/dim]\n" +
+                "[dim]   Configure AWS credentials (aws configure or environment variables)[/dim]\n" +
+                "[dim]   Visit: https://docs.anthropic.com/en/docs/claude-code/amazon-bedrock[/dim]\n\n" +
+                f"[dim]Current status: {config_status['status_message']}[/dim]",
+                title="[yellow]Authentication Required[/yellow]",
+                border_style="yellow",
+                padding=(1, 2)
+            )
+            main_console.print(config_warning_panel)
     
     # Initialize and run the chatbot
     chatbot = MarkdownChatbot(working_directory=args.directory)
