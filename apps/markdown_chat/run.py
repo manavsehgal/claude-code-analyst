@@ -682,33 +682,126 @@ class MarkdownChatbot:
             
         return result
     
+    def _parse_markdown_tables(self, content: str) -> List[dict]:
+        """Parse markdown tables from content and return structured data."""
+        tables = []
+        lines = content.split('\n')
+        i = 0
+        
+        while i < len(lines):
+            line = lines[i].strip()
+            
+            # Check if this looks like a table row
+            if '|' in line and line.count('|') >= 2:
+                # Found potential table start
+                table_lines = []
+                table_start = i
+                
+                # Collect all consecutive table lines
+                while i < len(lines):
+                    current_line = lines[i].strip()
+                    if '|' in current_line and current_line:
+                        table_lines.append(current_line)
+                        i += 1
+                    elif not current_line:  # Empty line, continue checking
+                        i += 1
+                    else:
+                        break  # End of table
+                
+                if len(table_lines) >= 2:  # Valid table needs at least header + separator
+                    # Parse table structure
+                    headers = []
+                    rows = []
+                    separator_idx = -1
+                    
+                    for idx, table_line in enumerate(table_lines):
+                        # Remove leading/trailing pipes and split
+                        cells = [cell.strip() for cell in table_line.strip('|').split('|')]
+                        
+                        # Check if this is a separator line
+                        if all(set(cell.strip()) <= set('-:| ') for cell in cells if cell.strip()):
+                            separator_idx = idx
+                        elif separator_idx == -1:  # Before separator = headers
+                            if not headers:  # First row becomes headers
+                                headers = cells
+                        else:  # After separator = data rows
+                            if cells and any(cell.strip() for cell in cells):  # Non-empty row
+                                rows.append(cells)
+                    
+                    if headers and rows:
+                        tables.append({
+                            'headers': headers,
+                            'rows': rows,
+                            'start_line': table_start,
+                            'end_line': i - 1
+                        })
+            else:
+                i += 1
+        
+        return tables
+    
+    def _render_rich_table(self, table_data: dict) -> Table:
+        """Create a Rich Table widget from parsed table data."""
+        # Create Rich table with clean styling
+        rich_table = Table(
+            box=box.SIMPLE,
+            show_header=True,
+            header_style="bold cyan",
+            show_lines=False,
+            pad_edge=False,
+            collapse_padding=True
+        )
+        
+        # Add columns
+        for header in table_data['headers']:
+            rich_table.add_column(header.strip(), overflow="fold")
+        
+        # Add rows
+        for row in table_data['rows']:
+            # Ensure row has same number of cells as headers
+            padded_row = row[:]
+            while len(padded_row) < len(table_data['headers']):
+                padded_row.append('')  # Fill missing cells
+            rich_table.add_row(*padded_row[:len(table_data['headers'])])
+        
+        return rich_table
+    
     def _display_clean_response(self, content: str) -> None:
-        """Display response with ZERO SPACING TOLERANCE - no Rich rendering for tables."""
+        """Display response with proper table rendering using Rich Table widgets."""
         try:
-            # Check if content contains tables
-            if '|' in content and content.count('|') >= 4:  # Likely contains tables
-                # NUCLEAR OPTION: NO Rich markdown rendering at all for tables
-                # Rich is adding internal spacing even without panels
+            # Parse tables from content
+            tables = self._parse_markdown_tables(content)
+            
+            if tables:
+                # Content contains tables - render with proper formatting
                 self.console.print(f"[bold green]🤖 Claude:[/bold green]")
                 
-                # Manual table formatting with zero spacing
                 lines = content.split('\n')
-                for line in lines:
-                    if line.strip():  # Only print non-empty lines
-                        # Check if it's a table line
-                        if '|' in line and line.count('|') >= 2:
-                            # Format table line with colors but no extra spacing
-                            # Replace separator lines with colored version
-                            if '━' in line or '─' in line or all(c in '━─|+: ' for c in line.strip()):
-                                self.console.print(f"[dim]{line}[/dim]")
-                            else:
-                                # Regular table row
-                                self.console.print(line)
-                        else:
-                            # Regular text line
+                current_line = 0
+                
+                for table in tables:
+                    # Print any content before this table
+                    while current_line < table['start_line']:
+                        line = lines[current_line].strip()
+                        if line:
                             self.console.print(line)
+                        current_line += 1
+                    
+                    # Render the table using Rich Table widget
+                    rich_table = self._render_rich_table(table)
+                    self.console.print(rich_table)
+                    
+                    # Skip the table lines
+                    current_line = table['end_line'] + 1
+                
+                # Print any remaining content after last table
+                while current_line < len(lines):
+                    line = lines[current_line].strip()
+                    if line:
+                        self.console.print(line)
+                    current_line += 1
             else:
-                # For non-table content, use Rich but with minimal spacing
+                # No tables - use Rich markdown for better formatting
                 if self._looks_like_markdown(content):
                     markdown_content = Markdown(content)
                     panel = Panel(
@@ -722,7 +815,7 @@ class MarkdownChatbot:
                     self.console.print(f"\n[bold green]🤖 Claude:[/bold green]")
                     self.console.print(content)
                     
-        except Exception:
+        except Exception as e:
             # Fallback to simple display
             self.console.print(f"\n[bold green]🤖 Claude:[/bold green]")
             self.console.print(content)
