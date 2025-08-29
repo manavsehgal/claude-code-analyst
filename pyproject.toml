@@ -15,4 +15,5 @@ dependencies = [
     "numpy>=1.24.0",
     "claude-code-sdk>=0.0.20",
     "anyio>=4.0.0",
+    "rich>=14.1.0",
 ]
