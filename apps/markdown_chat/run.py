@@ -530,70 +530,216 @@ class MarkdownChatbot:
         text = re.sub(r'^[A-Za-z]*Response\s*[:\-]?\s*', '', text)  # Remove ResponseType prefixes
         text = re.sub(r'^[A-Za-z]*Result\s*[:\-]?\s*', '', text)    # Remove ResultType prefixes
         
-        return text.strip()
+        # Aggressive whitespace normalization to prevent excessive spacing
+        # Remove excessive leading/trailing whitespace
+        text = text.strip()
+        
+        # Normalize multiple consecutive newlines to maximum of 2
+        text = re.sub(r'\n{3,}', '\n\n', text)
+        
+        # Remove excessive leading whitespace at the beginning of content
+        # This is specifically to fix table rendering with too much space before content
+        text = re.sub(r'^\s*\n+', '', text)
+        
+        return text
     
-    async def _stream_text_output(self, text: str, title: str = "🤖 Claude") -> None:
-        """Stream text output with smooth character-by-character display."""
-        if not text or self._is_system_message(text):
-            return
+    def _clean_content_for_display(self, text: str) -> str:
+        """ULTRA-AGGRESSIVE content cleanup - zero tolerance for excessive whitespace."""
+        if not text:
+            return text
             
-        # Sanitize the text to prevent encoding issues
-        text = self._sanitize_text(text)
-        if not text or self._is_system_message(text):  # Double-check after sanitization
-            return
+        # NUCLEAR OPTION: Strip all leading/trailing whitespace
+        text = text.strip()
         
-        # Final content quality check - ensure it's substantial user-facing content
-        if len(text) < 5:  # Too short to be meaningful
-            return
+        # ELIMINATE multiple consecutive newlines completely - maximum 1 blank line
+        text = re.sub(r'\n{2,}', '\n', text)
         
-        # Check if it's markdown content
-        is_markdown = self._looks_like_markdown(text)
+        # DESTROY any leading whitespace at the beginning
+        text = re.sub(r'^\s*\n*', '', text)
         
-        if is_markdown:
-            # For markdown, render it directly without streaming to preserve formatting
-            try:
-                markdown = Markdown(text)
-                panel = Panel(markdown, title=f"[bold green]{title}[/bold green]", 
-                            border_style="green", padding=(1, 2))
-                self.console.print(panel)
-            except Exception:
-                # Fallback to plain text if markdown rendering fails
-                panel = Panel(text, title=f"[bold green]{title}[/bold green]", 
-                            border_style="green", padding=(1, 2))
-                self.console.print(panel)
-        else:
-            # For plain text, use streaming display
-            self.console.print(f"\n[bold green]{title}:[/bold green]")
+        # OBLITERATE blank lines before table content
+        text = re.sub(r'\n+\s*(?=\|)', '\n', text)
+        
+        # ANNIHILATE whitespace before any content that looks like a table
+        text = re.sub(r'\n\s*\n+(?=\s*\w+.*\|)', '\n', text)
+        
+        # VAPORIZE space between sentences and tables
+        text = re.sub(r'(\.)\s*\n+(?=\s*\w+.*\|)', r'\1\n', text)
+        text = re.sub(r'(\.)\s*\n+(?=\s*\|)', r'\1\n', text)
+        
+        # ERADICATE any sequence of whitespace that could create visual gaps
+        text = re.sub(r'\n\s*\n(?=\s)', '\n', text)
+        
+        # FINAL NUCLEAR STRIKE: Remove any remaining problematic whitespace patterns
+        lines = text.split('\n')
+        result_lines = []
+        
+        for i, line in enumerate(lines):
+            # Skip completely empty lines unless they're between substantial content
+            if not line.strip():
+                # Only keep empty line if it's between two non-empty lines
+                if (i > 0 and i < len(lines) - 1 and 
+                    lines[i-1].strip() and lines[i+1].strip() and
+                    not ('|' in lines[i+1])):
+                    result_lines.append('')
+            else:
+                # Keep non-empty lines, but clean up internal spacing
+                if '|' in line and line.count('|') >= 2:
+                    # Table line - preserve formatting
+                    result_lines.append(line)
+                else:
+                    # Regular text - clean up multiple spaces
+                    cleaned = re.sub(r'\s{2,}', ' ', line.strip())
+                    result_lines.append(cleaned)
+        
+        return '\n'.join(result_lines)
+    
+    def _is_substantial_content(self, text: str) -> bool:
+        """STRICT quality check - only allow substantial, non-whitespace content."""
+        if not text or len(text.strip()) < 10:
+            return False
             
-            # Stream text word by word for better readability
-            words = text.split()
-            current_line = ""
+        # Count non-whitespace characters
+        non_whitespace = len(re.sub(r'\s', '', text))
+        total_length = len(text)
+        
+        # Require at least 30% non-whitespace content
+        if total_length > 0 and (non_whitespace / total_length) < 0.3:
+            return False
             
-            for word in words:
-                current_line += word + " "
-                # Print line if it gets too long or we hit a natural break
-                if len(current_line) > 80 or word.endswith(('.', '!', '?', ':')):
-                    self.console.print(current_line.strip())
-                    current_line = ""
-                    await asyncio.sleep(0.02)  # Small delay for streaming effect
+        # Must have actual words, not just punctuation and whitespace
+        word_chars = len(re.findall(r'\w', text))
+        if word_chars < 5:
+            return False
+            
+        # Check for excessive newlines relative to content
+        newline_count = text.count('\n')
+        if newline_count > 5 and word_chars < newline_count * 3:
+            return False
+            
+        return True
+    
+    def _nuclear_clean_content(self, text: str) -> str:
+        """NUCLEAR OPTION: Destroy ALL whitespace that could cause spacing issues."""
+        if not text:
+            return text
+        
+        # COMPLETE WHITESPACE ANNIHILATION
+        text = text.strip()
+        
+        # Remove ALL multiple newlines - only single newlines allowed
+        text = re.sub(r'\n+', '\n', text)
+        
+        # Remove ALL leading whitespace from every line
+        lines = text.split('\n')
+        cleaned_lines = []
+        for line in lines:
+            stripped = line.strip()
+            if stripped:  # Only keep non-empty lines
+                cleaned_lines.append(stripped)
+        
+        # Join with single newlines only
+        return '\n'.join(cleaned_lines)
+    
+    def _maximum_aggressive_clean(self, text: str) -> str:
+        """MAXIMUM AGGRESSIVE cleaning - eliminate ALL possible spacing issues."""
+        if not text:
+            return text
+        
+        # Strip everything
+        text = text.strip()
+        
+        # Split into lines for aggressive processing
+        lines = text.split('\n')
+        result_lines = []
+        
+        i = 0
+        while i < len(lines):
+            line = lines[i].rstrip()  # Remove trailing spaces
+            
+            # Skip completely empty lines
+            if not line.strip():
+                i += 1
+                continue
                 
-            # Print any remaining text
-            if current_line.strip():
-                self.console.print(current_line.strip())
+            # Check if this starts a table (line contains pipes)
+            if '|' in line and line.count('|') >= 2:
+                # Found table start - ensure ZERO blank lines before it
+                # Add the table line directly
+                result_lines.append(line)
+            else:
+                # Regular content line
+                result_lines.append(line)
+            
+            i += 1
+        
+        # Join with single newlines only - NO blank lines anywhere
+        result = '\n'.join(result_lines)
+        
+        # Final aggressive cleanup - remove any remaining multiple newlines
+        while '\n\n' in result:
+            result = result.replace('\n\n', '\n')
+            
+        return result
+    
+    def _display_clean_response(self, content: str) -> None:
+        """Display response with ZERO SPACING TOLERANCE - no Rich rendering for tables."""
+        try:
+            # Check if content contains tables
+            if '|' in content and content.count('|') >= 4:  # Likely contains tables
+                # NUCLEAR OPTION: NO Rich markdown rendering at all for tables
+                # Rich is adding internal spacing even without panels
+                self.console.print(f"[bold green]🤖 Claude:[/bold green]")
+                
+                # Manual table formatting with zero spacing
+                lines = content.split('\n')
+                for line in lines:
+                    if line.strip():  # Only print non-empty lines
+                        # Check if it's a table line
+                        if '|' in line and line.count('|') >= 2:
+                            # Format table line with colors but no extra spacing
+                            # Replace separator lines with colored version
+                            if '━' in line or '─' in line or all(c in '━─|+: ' for c in line.strip()):
+                                self.console.print(f"[dim]{line}[/dim]")
+                            else:
+                                # Regular table row
+                                self.console.print(line)
+                        else:
+                            # Regular text line
+                            self.console.print(line)
+            else:
+                # For non-table content, use Rich but with minimal spacing
+                if self._looks_like_markdown(content):
+                    markdown_content = Markdown(content)
+                    panel = Panel(
+                        markdown_content,
+                        title="[bold green]🤖 Claude[/bold green]",
+                        border_style="green",
+                        padding=(0, 1)  # Minimal padding
+                    )
+                    self.console.print(panel)
+                else:
+                    self.console.print(f"\n[bold green]🤖 Claude:[/bold green]")
+                    self.console.print(content)
+                    
+        except Exception:
+            # Fallback to simple display
+            self.console.print(f"\n[bold green]🤖 Claude:[/bold green]")
+            self.console.print(content)
     
     async def chat_with_claude(self, user_message: str) -> None:
-        """Send a message to Claude with current context and improved streaming display."""
+        """Send a message to Claude - ULTRA SIMPLE: no streaming, just clean response."""
         if not CLAUDE_SDK_AVAILABLE:
             self.console.print("[bold red]❌ Claude Code SDK is not available.[/bold red] Please install it first.")
             return
         
-        # Sanitize user input to prevent encoding issues
+        # Sanitize user input
         user_message = self._sanitize_text(user_message)
         if not user_message:
             self.console.print("[yellow]⚠️  Please enter a valid message.[/yellow]")
             return
         
-        # Build the full prompt with context
+        # Build prompt
         if self.current_context:
             rel_path = self.current_context['file_path'].relative_to(self.working_directory)
             prompt = f"""I have loaded a markdown file called '{rel_path}' with the following content:
@@ -607,63 +753,57 @@ User question: {user_message}"""
             prompt = f"""I'm using a markdown chatbot, but no specific file is currently loaded. 
 Here's my question: {user_message}"""
         
-        # Enhanced progress display
-        with Progress(
-            SpinnerColumn(),
-            TextColumn("[bold blue]🤖 Claude is thinking..."),
-            transient=True
-        ) as progress:
-            task = progress.add_task("thinking", total=None)
-            
-            response_received = False
-            
+        # Simple thinking indicator
+        thinking_status = Status(
+            "[bold blue]🤖 Claude is thinking...[/bold blue]",
+            spinner="dots12"
+        )
+        
+        response_received = False
+        
+        with thinking_status:
             try:
+                # ULTRA SIMPLE: Just collect all content, no streaming whatsoever
+                all_content = []
+                
                 async for message in query(prompt=prompt):
-                    if not response_received:
-                        progress.stop()
-                        response_received = True
-                    
-                    # Enhanced message processing with comprehensive filtering
-                    content_to_display = None
-                    
                     if hasattr(message, 'content'):
                         if isinstance(message.content, list):
                             for block in message.content:
                                 if hasattr(block, 'text'):
-                                    text_content = self._sanitize_text(str(block.text))
-                                    if text_content and not self._is_system_message(text_content):
-                                        content_to_display = text_content
-                                        break  # Use first valid content block
+                                    text = str(block.text)
+                                    if text and not self._is_system_message(text):
+                                        all_content.append(text)
                         elif hasattr(message.content, 'text'):
-                            text_content = self._sanitize_text(str(message.content.text))
-                            if text_content and not self._is_system_message(text_content):
-                                content_to_display = text_content
-                        else:
-                            # Handle other content types - be less restrictive
-                            content_str = self._sanitize_text(str(message.content))
-                            if (content_str and not self._is_system_message(content_str)):
-                                content_to_display = content_str
-                    else:
-                        # Handle messages without content attribute - be less restrictive
-                        msg_str = self._sanitize_text(str(message))
-                        # Only display if it looks like genuine user-facing content
-                        if (msg_str and 
-                            not self._is_system_message(msg_str) and
-                            len(msg_str) > 10):  # Reduced length requirement
-                            content_to_display = msg_str
-                    
-                    # Display content if it passed all filters
-                    if content_to_display:
-                        await self._stream_text_output(content_to_display)
-                            
-            except Exception as e:
-                if not response_received:
-                    progress.stop()
-                error_msg = self._sanitize_text(str(e))
-                self.console.print(f"[bold red]❌ Error communicating with Claude:[/bold red] {error_msg}")
+                            text = str(message.content.text)
+                            if text and not self._is_system_message(text):
+                                all_content.append(text)
+                        elif message.content:
+                            text = str(message.content)
+                            if text and not self._is_system_message(text):
+                                all_content.append(text)
                 
-        # Show helpful next steps
-        self._show_conversation_tips()
+                thinking_status.stop()
+                
+                # Process collected content
+                if all_content:
+                    # Take the longest content (most complete)
+                    complete_response = max(all_content, key=len)
+                    
+                    # Clean and display ONCE - MAXIMUM AGGRESSIVE
+                    cleaned_response = self._maximum_aggressive_clean(complete_response)
+                    
+                    if cleaned_response and len(cleaned_response.strip()) > 10:
+                        self._display_clean_response(cleaned_response)
+                        response_received = True
+                        
+            except Exception as e:
+                thinking_status.stop()
+                self.console.print(f"[bold red]❌ Error:[/bold red] {str(e)}")
+        
+        # Show tips if we got a response
+        if response_received:
+            self._show_conversation_tips()
     
     def _looks_like_markdown(self, text: str) -> bool:
         """Enhanced heuristic to detect if text contains markdown formatting."""
@@ -702,18 +842,28 @@ Here's my question: {user_message}"""
         return False
     
     def _show_conversation_tips(self) -> None:
-        """Show helpful tips after each response."""
+        """Show enhanced helpful tips after each response with better formatting."""
         tips = [
             "💡 Ask follow-up questions about the content",
             "💡 Try 'load <number>' to switch to a different file",
-            "💡 Use 'list' to see all available files",
-            "💡 Type 'help' to see all commands"
+            "💡 Use 'list' to see all available files", 
+            "💡 Type 'help' to see all commands",
+            "💡 Navigate with 'cd <number>' to explore folders",
+            "💡 Use 'show' to see current file details"
         ]
         
-        # Rotate tips to show different ones
+        # Enhanced tips panel with better visual design
         import random
         tip = random.choice(tips)
-        self.console.print(f"\n[dim]{tip}[/dim]")
+        
+        tip_panel = Panel(
+            tip,
+            border_style="dim",
+            padding=(0, 1),
+            box=box.ROUNDED
+        )
+        self.console.print(f"\n")
+        self.console.print(tip_panel)
     
     def run(self) -> None:
         """Main chatbot loop."""
