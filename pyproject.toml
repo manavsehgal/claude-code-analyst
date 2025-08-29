@@ -16,7 +16,6 @@ dependencies = [
     "claude-code-sdk>=0.0.20",
     "anyio>=4.0.0",
     "rich>=14.1.0",
-    "textual>=1.0.0",
 ]
 
 [tool.uv]
