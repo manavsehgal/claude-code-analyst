@@ -55,6 +55,24 @@ Create intelligent visualizations from Markdown content:
 - **Batch Processing**: Creates comprehensive visualization sets from single documents
 - **Claude Code Integration**: Available as a custom `/mermaid` command
 
+### 🖼️ Mermaid to Image Converter
+Convert Mermaid diagrams to high-quality images:
+
+- **Professional Quality**: Uses official Mermaid CLI for production-grade rendering
+- **Multiple Formats**: Export as PNG, SVG, or PDF with configurable themes and dimensions
+- **Batch Processing**: Convert multiple diagrams from a single markdown file
+- **Organized Output**: Sequential naming and proper folder structure
+- **Theme Support**: Default, dark, forest, neutral, and base themes available
+
+### 💬 Interactive Markdown Chat
+Terminal-based chatbot for discussing markdown content:
+
+- **File Discovery**: Automatically finds all markdown files in your project
+- **Context Loading**: Load any markdown file into conversation context
+- **Rich Terminal UI**: Beautiful, responsive terminal interface with streaming responses
+- **Claude Integration**: Powered by Claude Code SDK for intelligent conversations
+- **Navigation**: Easy file browsing and management commands
+
 ## 🚀 Quick Start
 
 ### Prerequisites
@@ -136,6 +154,41 @@ mermaid/
     └── README.md
 ```
 
+#### 4️⃣ Convert Visualizations to Images
+
+```bash
+# Convert Mermaid diagrams to high-quality images
+uv run python scripts/mermaid_to_image.py mermaid/article-title/01-timeline.md --format png --theme dark
+
+# Batch convert all diagrams in a file
+uv run python scripts/mermaid_to_image.py mermaid/article-title/workflow.md --format svg
+```
+
+**Output Structure:**
+```
+visualizations/
+└── article-title/
+    ├── 01-timeline-01.png
+    ├── 02-flowchart-01.svg
+    └── 03-relationships-01.pdf
+```
+
+#### 5️⃣ Interactive Chat with Markdown Content
+
+```bash
+# Run the markdown chat application
+uv run python apps/markdown_chat/run.py
+
+# Chat with specific directory content
+uv run python apps/markdown_chat/run.py --directory /path/to/markdown/files
+```
+
+**Features:**
+- List and browse all markdown files
+- Load any file into conversation context
+- Discuss content with Claude AI
+- Rich terminal interface with streaming responses
+
 ### 🔗 Complete Workflow Examples
 
 #### Research & Analysis Workflow
@@ -152,7 +205,11 @@ uv run python scripts/article_to_md.py https://research-paper.com/ai-study
 # Step 4: Convert diagrams to presentation-ready images
 uv run python scripts/mermaid_to_image.py mermaid/ai-study/01-workflow.md --format png --theme dark
 
-# Result: Complete research package with readable archive, processable text, visual insights, and presentation-ready images
+# Step 5: Interactive analysis with AI
+uv run python apps/markdown_chat/run.py
+# Then load the processed content for AI-powered discussion
+
+# Result: Complete research package with readable archive, processable text, visual insights, presentation-ready images, and AI-powered analysis
 ```
 
 #### Documentation Preservation
@@ -239,7 +296,11 @@ timeline
 claude-code-analyst/
 ├── scripts/                    # Python tools and utilities
 │   ├── article_to_md.py       # Web article to Markdown converter
-│   └── html_downloader.py     # HTML page archiving tool
+│   ├── html_downloader.py     # HTML page archiving tool
+│   └── mermaid_to_image.py    # Mermaid diagram to image converter
+├── apps/                       # Interactive applications
+│   └── markdown_chat/         # AI-powered markdown chat interface
+│       └── run.py             # Terminal-based chatbot
 ├── docs/                       # User guides and documentation
 │   ├── README.md              # Documentation index
 │   ├── article-to-md-guide.md
@@ -256,14 +317,18 @@ claude-code-analyst/
 ├── mermaid/                   # Visualizations (generated)
 │   └── article-title/
 │       └── *.md
+├── visualizations/            # Generated images (from mermaid_to_image.py)
+│   └── article-title/
+│       ├── diagram-01.png
+│       ├── chart-02.svg
+│       └── flow-03.pdf
 ├── backlog/                   # Project planning
 │   └── active-backlog.md
 ├── tests/                     # Test suite
 ├── .claude/                   # Claude Code custom commands
 │   └── commands/
-│       ├── mermaid.md
-│       ├── download_html.md
-│       └── guide.md
+│       ├── mermaid.md        # Mermaid visualization generator
+│       └── readme.md         # README generation command
 ├── CLAUDE.md                  # Claude Code configuration
 ├── pyproject.toml            # Project dependencies
 └── README.md                 # This file
@@ -301,6 +366,10 @@ uv run ruff format .
 | `beautifulsoup4` | HTML parsing and manipulation |
 | `markdownify` | HTML to Markdown conversion |
 | `readability-lxml` | Article content extraction |
+| `mermaid-mcp` | Mermaid diagram processing and image conversion |
+| `claude-code-sdk` | AI-powered chat and analysis features |
+| `rich` | Enhanced terminal UI and formatting |
+| `pyyaml` | Configuration file handling |
 
 ## 🎯 Use Cases
 
@@ -327,14 +396,18 @@ uv run ruff format .
 ## 🚦 Roadmap
 
 ### Completed Features ✅
-- [x] Article to Markdown conversion with metadata
-- [x] HTML page archiving with image preservation
-- [x] Mermaid visualization generation
-- [x] Claude Code integration
-- [x] Robots.txt compliance
-- [x] Comprehensive documentation
+- [x] Article to Markdown conversion with metadata (web URLs and local HTML files)
+- [x] HTML page archiving with image preservation and Substack support
+- [x] Mermaid visualization generation (Claude Code integration)
+- [x] Mermaid to image conversion (PNG, SVG, PDF export)
+- [x] Interactive markdown chat application with AI integration
+- [x] Claude Code SDK integration and custom commands
+- [x] Rich terminal UI with streaming responses
+- [x] Robots.txt compliance and ethical web scraping
+- [x] Comprehensive documentation and user guides
 
 ### Planned Enhancements 🔄
+- [ ] Enhanced chat app with multiple authentication methods (API key, Max plan, Bedrock)
 - [ ] PDF article processing support
 - [ ] Batch processing multiple URLs
 - [ ] Custom CSS themes for HTML archives
@@ -343,6 +416,7 @@ uv run ruff format .
 - [ ] API endpoint for programmatic access
 - [ ] Video/audio content handling
 - [ ] Archive compression (ZIP/TAR formats)
+- [ ] Integration with more visualization formats beyond Mermaid
 
 ## 🤝 Contributing
 
