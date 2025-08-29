@@ -355,7 +355,7 @@ class MarkdownChatTextual(App):
         chat_display.scroll_end(animate=True)
     
     @on(Input.Submitted)
-    async def on_input_submitted(self, event: Input.Submitted) -> None:
+    def on_input_submitted(self, event: Input.Submitted) -> None:
         """Handle input submission."""
         message = event.value.strip()
         if not message:
@@ -382,7 +382,7 @@ class MarkdownChatTextual(App):
         else:
             # Send to Claude
             self.add_to_chat(message, role="user")
-            await self.chat_with_claude(message)
+            self.chat_with_claude(message)
     
     def clear_chat(self) -> None:
         """Clear the chat display."""
@@ -461,52 +461,68 @@ User question: {user_message}"""
             prompt = f"""I'm using a markdown chatbot, but no specific file is currently loaded. 
 Here's my question: {user_message}"""
         
+        # Create response widget first
+        chat_display = self.query_one("#chat-display", ScrollableContainer)
+        response_widget = Markdown("🤖 **Claude:** *Connecting...*")
+        response_widget.add_class("claude-message")
+        response_widget.add_class("chat-message")
+        chat_display.mount(response_widget)
+        chat_display.scroll_end(animate=True)
+        
         try:
-            # Collect response with streaming
-            response_content = ""
-            response_started = False
+            # Simple approach: collect all content and show debug info
+            all_chunks = []
+            message_count = 0
             
-            # Create a placeholder for streaming response
-            chat_display = self.query_one("#chat-display", ScrollableContainer)
-            response_widget = Markdown("🤖 **Claude:** *Thinking...*")
-            response_widget.add_class("claude-message")
-            response_widget.add_class("chat-message")
-            chat_display.mount(response_widget)
-            chat_display.scroll_end(animate=True)
+            response_widget.update("🤖 **Claude:** *Receiving response...*")
             
             async for message in query(prompt=prompt):
+                message_count += 1
+                response_widget.update(f"🤖 **Claude:** *Processing message {message_count}...*")
+                
                 if hasattr(message, 'content'):
-                    chunk = ""
+                    chunk = None
                     
+                    # Extract content from different message formats
                     if isinstance(message.content, list):
                         for block in message.content:
                             if hasattr(block, 'text'):
-                                chunk = str(block.text)
+                                chunk = str(block.text).strip()
+                                break
                     elif hasattr(message.content, 'text'):
-                        chunk = str(message.content.text)
+                        chunk = str(message.content.text).strip()
                     elif message.content:
-                        chunk = str(message.content)
+                        chunk = str(message.content).strip()
                     
-                    if chunk and not self._is_system_message(chunk):
-                        if not response_started:
-                            response_content = chunk
-                            response_started = True
-                        else:
-                            response_content = chunk  # Use latest complete response
+                    # Only filter obvious system messages, be permissive
+                    if chunk and len(chunk) > 5:
+                        # Very basic system message filtering
+                        chunk_lower = chunk.lower()
+                        is_system = any(pattern in chunk_lower for pattern in [
+                            'duration_ms=', 'session_id=', '(subtype=', 'total_cost_usd='
+                        ])
                         
-                        # Update the response widget with streaming content
-                        response_widget.update(f"🤖 **Claude:**\n\n{response_content}")
-                        chat_display.scroll_end(animate=False)
+                        if not is_system:
+                            all_chunks.append(chunk)
+                            # Show latest chunk immediately
+                            response_widget.update(f"🤖 **Claude:**\n\n{chunk}")
+                            chat_display.scroll_end(animate=False)
             
-            # Final update with complete response
-            if response_content:
-                response_widget.update(f"🤖 **Claude:**\n\n{response_content}")
-                self.chat_history.append({"role": "assistant", "content": response_content})
+            # Final handling
+            if all_chunks:
+                # Use the longest/most complete response
+                final_response = max(all_chunks, key=len)
+                response_widget.update(f"🤖 **Claude:**\n\n{final_response}")
+                self.chat_history.append({"role": "assistant", "content": final_response})
             else:
-                response_widget.update("🤖 **Claude:** *No response received*")
+                # Show debug information
+                debug_info = f"*Debug: Received {message_count} messages, but no valid content found*"
+                response_widget.update(f"🤖 **Claude:** {debug_info}")
             
         except Exception as e:
-            self.add_to_chat(f"❌ Error: {str(e)}", role="system")
+            import traceback
+            error_details = f"❌ Error: {str(e)}\n\nDetails: {traceback.format_exc()}"
+            response_widget.update(f"🤖 **Claude:** {error_details}")
         finally:
             loading.display = False
     
