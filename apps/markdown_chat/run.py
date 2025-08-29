@@ -43,58 +43,113 @@ class MarkdownChatbot:
     
     def __init__(self, working_directory: str = "."):
         self.working_directory = Path(working_directory).resolve()
+        self.current_directory = self.working_directory  # Current navigation directory
         self.markdown_files = []
+        self.folders_with_markdown = []
         self.current_context = None
         self.console = Console()
-        self.discover_markdown_files()
+        self.discover_content()
     
-    def discover_markdown_files(self) -> None:
-        """Discover all markdown files in the working directory and subdirectories."""
-        patterns = ["**/*.md", "**/*.markdown"]
-        self.markdown_files = []
-        
-        with self.console.status("[bold blue]Discovering markdown files...", spinner="dots"):
-            for pattern in patterns:
-                files = glob.glob(str(self.working_directory / pattern), recursive=True)
-                self.markdown_files.extend([Path(f) for f in files])
+    def discover_content(self) -> None:
+        """Discover markdown files and folders in the current directory."""
+        with self.console.status("[bold blue]Discovering content...", spinner="dots"):
+            self._discover_in_current_directory()
             
-            # Sort files by name for consistent ordering
-            self.markdown_files.sort(key=lambda x: x.name.lower())
-        
         # Enhanced discovery feedback
-        if self.markdown_files:
-            self.console.print(f"[bold green]✓ Discovered {len(self.markdown_files)} markdown files[/bold green] in [dim]{self.working_directory}[/dim]")
+        total_files = len(self.markdown_files)
+        total_folders = len(self.folders_with_markdown)
+        
+        if total_files > 0 or total_folders > 0:
+            rel_path = self.current_directory.relative_to(self.working_directory) if self.current_directory != self.working_directory else "."
+            self.console.print(
+                f"[bold green]✓ Discovered {total_files} markdown files and {total_folders} folders[/bold green] "
+                f"in [dim]{rel_path}[/dim]"
+            )
         else:
-            self.console.print(f"[bold yellow]⚠️  No markdown files found[/bold yellow] in [dim]{self.working_directory}[/dim]")
-            self.console.print("[dim]💡 Try navigating to a directory with .md files or create some markdown files[/dim]")
+            rel_path = self.current_directory.relative_to(self.working_directory) if self.current_directory != self.working_directory else "."
+            self.console.print(f"[bold yellow]⚠️  No markdown content found[/bold yellow] in [dim]{rel_path}[/dim]")
+            self.console.print("[dim]💡 Try navigating to a different directory or create markdown files[/dim]")
     
-    def list_markdown_files(self) -> None:
-        """Display all discovered markdown files with enhanced formatting and metadata."""
-        if not self.markdown_files:
-            no_files_panel = Panel(
-                "[bold yellow]No markdown files found in this directory[/bold yellow]\n\n" +
+    def _discover_in_current_directory(self) -> None:
+        """Discover markdown files and folders with markdown in current directory only."""
+        self.markdown_files = []
+        self.folders_with_markdown = []
+        
+        # Find markdown files in current directory
+        patterns = ["*.md", "*.markdown"]
+        for pattern in patterns:
+            files = glob.glob(str(self.current_directory / pattern))
+            self.markdown_files.extend([Path(f) for f in files])
+        
+        # Find subdirectories that contain markdown files
+        if self.current_directory.is_dir():
+            for item in self.current_directory.iterdir():
+                if item.is_dir() and not item.name.startswith('.'):
+                    # Check if this directory contains markdown files (recursive)
+                    has_markdown = self._directory_has_markdown(item)
+                    if has_markdown:
+                        self.folders_with_markdown.append(item)
+        
+        # Sort both lists
+        self.markdown_files.sort(key=lambda x: x.name.lower())
+        self.folders_with_markdown.sort(key=lambda x: x.name.lower())
+    
+    def _directory_has_markdown(self, directory: Path) -> bool:
+        """Check if a directory contains any markdown files (recursive)."""
+        patterns = ["**/*.md", "**/*.markdown"]
+        for pattern in patterns:
+            files = glob.glob(str(directory / pattern), recursive=True)
+            if files:
+                return True
+        return False
+    
+    def list_content(self) -> None:
+        """Display folders and markdown files in current directory with enhanced formatting."""
+        total_items = len(self.folders_with_markdown) + len(self.markdown_files)
+        
+        if total_items == 0:
+            rel_path = self.current_directory.relative_to(self.working_directory) if self.current_directory != self.working_directory else "."
+            no_content_panel = Panel(
+                f"[bold yellow]No markdown content found in {rel_path}[/bold yellow]\n\n" +
                 "[dim]💡 Tips:[/dim]\n" +
-                "[dim]• Navigate to a directory with .md files[/dim]\n" +
+                "[dim]• Use 'up' to go to parent directory[/dim]\n" +
                 "[dim]• Create some markdown files to get started[/dim]\n" +
-                "[dim]• Use --directory flag to specify a different folder[/dim]",
-                title="📁 File Discovery",
+                "[dim]• Use 'cd <folder>' to navigate to subfolders[/dim]",
+                title="📁 Content Discovery",
                 border_style="yellow",
                 padding=(1, 2)
             )
-            self.console.print(no_files_panel)
+            self.console.print(no_content_panel)
             return
         
-        # Create an enhanced table with more information
-        table = Table(title=f"📄 Available Markdown Files ({len(self.markdown_files)} found)", 
+        # Show current directory path
+        rel_path = self.current_directory.relative_to(self.working_directory) if self.current_directory != self.working_directory else "."
+        current_dir_text = f"📂 Current Directory: [bold cyan]{rel_path}[/bold cyan]"
+        self.console.print(current_dir_text)
+        
+        # Create table for folders and files
+        table = Table(title=f"📋 Available Content ({total_items} items)", 
                      box=box.ROUNDED, title_style="bold cyan")
         table.add_column("#", style="bold blue", width=3, justify="right")
-        table.add_column("File Path", style="green", min_width=30)
-        table.add_column("Size", style="dim", justify="right", width=12)
-        table.add_column("Modified", style="dim", justify="center", width=12)
+        table.add_column("Type", style="white", width=6, justify="center")
+        table.add_column("Name", style="green", min_width=30)
+        table.add_column("Info", style="dim", justify="right", width=20)
         
-        for i, file_path in enumerate(self.markdown_files, 1):
-            rel_path = file_path.relative_to(self.working_directory)
+        item_index = 1
+        
+        # Add folders first
+        for folder in self.folders_with_markdown:
+            folder_name = folder.name
+            # Count markdown files in this folder (recursive)
+            file_count = len(glob.glob(str(folder / "**/*.md"), recursive=True)) + \
+                        len(glob.glob(str(folder / "**/*.markdown"), recursive=True))
+            info_str = f"{file_count} markdown files"
             
+            table.add_row(str(item_index), "📁", f"[bold yellow]{folder_name}/[/bold yellow]", info_str)
+            item_index += 1
+        
+        # Add markdown files
+        for file_path in self.markdown_files:
             try:
                 stat = file_path.stat()
                 size = stat.st_size
@@ -106,40 +161,46 @@ class MarkdownChatbot:
                     size_str = f"{size/1024:.1f} KB"
                 else:
                     size_str = f"{size/(1024*1024):.1f} MB"
-                
-                # Format modification time
-                import datetime
-                mod_time = datetime.datetime.fromtimestamp(stat.st_mtime)
-                if (datetime.datetime.now() - mod_time).days < 7:
-                    time_str = mod_time.strftime("%m/%d")
-                else:
-                    time_str = mod_time.strftime("%Y")
                     
             except OSError:
                 size_str = "--"
-                time_str = "--"
             
             # Highlight currently loaded file
             if (self.current_context and 
                 self.current_context['file_path'] == file_path):
-                table.add_row(str(i), f"[bold cyan]{rel_path}[/bold cyan] ✓", size_str, time_str)
+                table.add_row(str(item_index), "📄", f"[bold cyan]{file_path.name}[/bold cyan] ✓", size_str)
             else:
-                table.add_row(str(i), str(rel_path), size_str, time_str)
+                table.add_row(str(item_index), "📄", file_path.name, size_str)
+            item_index += 1
         
         self.console.print(table)
         
-        # Enhanced tips with current context awareness
-        if self.current_context:
-            self.console.print("[dim]💡 Currently loaded file marked with ✓ • Use 'load <number>' to switch files[/dim]")
-        else:
-            self.console.print("[dim]💡 Use 'load <number>' to load a file, 'help' for all commands[/dim]")
+        # Enhanced navigation tips
+        tips = []
+        if len(self.folders_with_markdown) > 0:
+            tips.append("Use 'cd <number>' to enter folders")
+        if len(self.markdown_files) > 0:
+            tips.append("Use 'load <number>' to load files")
+        if self.current_directory != self.working_directory:
+            tips.append("Use 'up' to go to parent directory")
+        
+        if tips:
+            self.console.print(f"[dim]💡 {' • '.join(tips)}[/dim]")
     
-    def load_markdown_file(self, file_index: int) -> Optional[str]:
+    def load_markdown_file(self, item_index: int) -> Optional[str]:
         """Load content from a markdown file by index."""
-        if 1 <= file_index <= len(self.markdown_files):
-            file_path = self.markdown_files[file_index - 1]
+        # Calculate the actual file index (subtract folder count)
+        folder_count = len(self.folders_with_markdown)
+        file_index = item_index - folder_count - 1
+        
+        if item_index <= folder_count:
+            self.console.print("[bold red]❌ That's a folder, not a file.[/bold red] Use [bold cyan]'cd <number>'[/bold cyan] to enter folders.")
+            return None
+        
+        if 0 <= file_index < len(self.markdown_files):
+            file_path = self.markdown_files[file_index]
             try:
-                with self.console.status(f"[bold blue]Loading file {file_index}...", spinner="dots"):
+                with self.console.status(f"[bold blue]Loading file {item_index}...", spinner="dots"):
                     with open(file_path, 'r', encoding='utf-8') as f:
                         content = f.read()
                 
@@ -163,8 +224,48 @@ class MarkdownChatbot:
                 self.console.print(f"[bold red]❌ Error loading file:[/bold red] {e}")
                 return None
         else:
-            self.console.print("[bold red]❌ Invalid file number.[/bold red] Use [bold cyan]'list'[/bold cyan] to see available files.")
+            self.console.print("[bold red]❌ Invalid item number.[/bold red] Use [bold cyan]'list'[/bold cyan] to see available items.")
             return None
+    
+    def change_directory(self, item_index: int) -> bool:
+        """Change to a folder by index."""
+        if 1 <= item_index <= len(self.folders_with_markdown):
+            folder_path = self.folders_with_markdown[item_index - 1]
+            self.current_directory = folder_path
+            
+            with self.console.status("[bold blue]Navigating to folder...", spinner="dots"):
+                self.discover_content()
+            
+            rel_path = self.current_directory.relative_to(self.working_directory)
+            self.console.print(f"[bold green]✓ Entered folder:[/bold green] [bold cyan]{rel_path}[/bold cyan]")
+            return True
+        elif item_index > len(self.folders_with_markdown):
+            self.console.print("[bold red]❌ That's a file, not a folder.[/bold red] Use [bold cyan]'load <number>'[/bold cyan] to load files.")
+            return False
+        else:
+            self.console.print("[bold red]❌ Invalid folder number.[/bold red] Use [bold cyan]'list'[/bold cyan] to see available folders.")
+            return False
+    
+    def go_up_directory(self) -> bool:
+        """Go to parent directory."""
+        if self.current_directory == self.working_directory:
+            self.console.print("[bold yellow]⚠️ Already at the root directory.[/bold yellow]")
+            return False
+        
+        # Check if parent is within working directory
+        parent = self.current_directory.parent
+        if not str(parent).startswith(str(self.working_directory)):
+            self.console.print("[bold yellow]⚠️ Cannot navigate above the root directory.[/bold yellow]")
+            return False
+        
+        self.current_directory = parent
+        
+        with self.console.status("[bold blue]Going up...", spinner="dots"):
+            self.discover_content()
+        
+        rel_path = self.current_directory.relative_to(self.working_directory) if self.current_directory != self.working_directory else "."
+        self.console.print(f"[bold green]✓ Moved to:[/bold green] [bold cyan]{rel_path}[/bold cyan]")
+        return True
     
     def show_help(self) -> None:
         """Display comprehensive help information with enhanced guidance."""
@@ -174,9 +275,18 @@ class MarkdownChatbot:
         help_table.add_column("Description", style="white")
         help_table.add_column("Example", style="dim", width=15)
         
-        help_table.add_row("list", "Show all markdown files with metadata", "list")
-        help_table.add_row("load <number>", "Load a specific file into context", "load 3")
+        # File and folder navigation commands
+        help_table.add_row("list", "Show folders and files in current directory", "list")
+        help_table.add_row("cd <number>", "Enter a folder by number", "cd 2")
+        help_table.add_row("up", "Go to parent directory", "up")
+        help_table.add_row("load <number>", "Load a markdown file into context", "load 5")
+        
+        # Information commands
         help_table.add_row("show", "Display current file information", "show")
+        help_table.add_row("pwd", "Show current directory path", "pwd")
+        help_table.add_row("refresh", "Refresh folder/file listing", "refresh")
+        
+        # System commands
         help_table.add_row("help", "Show this help message", "help")
         help_table.add_row("quit/exit/q", "Exit the chatbot gracefully", "quit")
         
@@ -203,12 +313,31 @@ class MarkdownChatbot:
         )
         self.console.print(chat_examples)
         
+        # Navigation-specific guidance
+        nav_guide = Panel(
+            "[bold cyan]🗺️ Navigation Guide:[/bold cyan]\n\n" +
+            "[bold green]📁 Folders vs 📄 Files:[/bold green]\n" +
+            "• [yellow]Folders[/yellow] contain markdown files and show with 📁 icon\n" +
+            "• [yellow]Files[/yellow] are markdown documents you can load with 📄 icon\n" +
+            "• Numbers in 'list' command work for both folders and files\n\n" +
+            "[bold green]Navigation Tips:[/bold green]\n" +
+            "• Start with 'list' to see current directory contents\n" +
+            "• Use 'cd <number>' to explore folders with markdown files\n" +
+            "• Use 'load <number>' to load files for AI conversation\n" +
+            "• Use 'up' to go back to parent directories\n" +
+            "• Use 'pwd' to see where you are in the directory structure",
+            title="🎠 Navigation Help",
+            border_style="blue",
+            padding=(1, 2)
+        )
+        self.console.print(nav_guide)
+        
         # Pro tips section
         pro_tips = Panel(
             "[bold magenta]🏆 Pro Tips:[/bold magenta]\n" +
             "• Load a file first with 'load <number>' for better context\n" +
             "• Ask follow-up questions to dive deeper into topics\n" +
-            "• Use 'list' to see file sizes and quickly find what you need\n" +
+            "• Navigate folders to organize your markdown exploration\n" +
             "• The chatbot remembers your loaded file throughout the session",
             title="✨ Advanced Usage",
             border_style="magenta"
@@ -216,9 +345,20 @@ class MarkdownChatbot:
         self.console.print(pro_tips)
     
     def show_current_context(self) -> None:
-        """Show enhanced information about the currently loaded file."""
+        """Show enhanced information about the currently loaded file and current directory."""
+        # Show current directory info
+        rel_path = self.current_directory.relative_to(self.working_directory) if self.current_directory != self.working_directory else "."
+        dir_info = Panel(
+            f"[bold blue]📂 Current Directory:[/bold blue] [bold cyan]{rel_path}[/bold cyan]\n" +
+            f"[dim]📁 Folders: {len(self.folders_with_markdown)} • 📄 Files: {len(self.markdown_files)}[/dim]",
+            border_style="blue",
+            padding=(0, 1)
+        )
+        self.console.print(dir_info)
+        
+        # Show loaded file info if any
         if self.current_context:
-            rel_path = self.current_context['file_path'].relative_to(self.working_directory)
+            file_rel_path = self.current_context['file_path'].relative_to(self.working_directory)
             content_length = len(self.current_context['content'])
             lines = self.current_context['content'].count('\n') + 1
             
@@ -233,8 +373,8 @@ class MarkdownChatbot:
             
             # Create a comprehensive info panel
             info_text = Text()
-            info_text.append("📄 File: ", style="bold")
-            info_text.append(str(rel_path), style="bold green")
+            info_text.append("📄 Loaded File: ", style="bold")
+            info_text.append(str(file_rel_path), style="bold green")
             info_text.append(f"\n📊 Content: {content_length:,} chars • {lines:,} lines • {words:,} words", style="dim")
             
             if headers > 0 or code_blocks > 0 or links > 0:
@@ -248,7 +388,7 @@ class MarkdownChatbot:
             
             info_text.append(f"\n📂 Full path: {self.current_context['file_path']}", style="dim")
             
-            panel = Panel(info_text, title="[bold blue]✓ Currently Loaded File[/bold blue]", border_style="blue")
+            panel = Panel(info_text, title="[bold green]✓ Currently Loaded File[/bold green]", border_style="green")
             self.console.print(panel)
             
             # Show content preview
@@ -269,14 +409,27 @@ class MarkdownChatbot:
             no_context_panel = Panel(
                 "[bold yellow]No file currently loaded[/bold yellow]\n\n" +
                 "[dim]To get started:[/dim]\n" +
-                "[dim]• Type [bold cyan]'list'[/bold cyan] to see available files[/dim]\n" +
-                "[dim]• Use [bold cyan]'load <number>'[/bold cyan] to load a specific file[/dim]\n" +
-                "[dim]• Files must be loaded before you can chat about their content[/dim]",
+                "[dim]• Type [bold cyan]'list'[/bold cyan] to see available content[/dim]\n" +
+                "[dim]• Use [bold cyan]'cd <number>'[/bold cyan] to enter folders[/dim]\n" +
+                "[dim]• Use [bold cyan]'load <number>'[/bold cyan] to load files for chat[/dim]",
                 title="📁 Context Status",
                 border_style="yellow",
                 padding=(1, 2)
             )
             self.console.print(no_context_panel)
+    
+    def show_current_directory(self) -> None:
+        """Show current directory path."""
+        rel_path = self.current_directory.relative_to(self.working_directory) if self.current_directory != self.working_directory else "."
+        pwd_panel = Panel(
+            f"[bold blue]📂 Current Directory:[/bold blue] [bold cyan]{rel_path}[/bold cyan]\n" +
+            f"[bold blue]🗺️ Full Path:[/bold blue] [dim]{self.current_directory}[/dim]\n" +
+            f"[bold blue]📋 Contents:[/bold blue] [dim]{len(self.folders_with_markdown)} folders, {len(self.markdown_files)} files[/dim]",
+            title="🗺️ Location Info",
+            border_style="blue",
+            padding=(1, 2)
+        )
+        self.console.print(pwd_panel)
     
     def _is_system_message(self, text: str) -> bool:
         """Comprehensive system message detection to filter all internal responses."""
@@ -586,7 +739,7 @@ Here's my question: {user_message}"""
             self.console.print("[bold red]⚠️  Warning:[/bold red] claude-code-sdk not available. Install with: [bold cyan]uv add claude-code-sdk[/bold cyan]")
         
         # Show files initially
-        self.list_markdown_files()
+        self.list_content()
         
         while True:
             try:
@@ -634,26 +787,48 @@ Here's my question: {user_message}"""
                     self.show_help()
                 elif user_input.lower() == 'list':
                     self.console.print()  # Add spacing
-                    self.list_markdown_files()
+                    self.list_content()
                 elif user_input.lower() == 'show':
                     self.console.print()  # Add spacing
                     self.show_current_context()
+                elif user_input.lower() == 'pwd':
+                    self.console.print()  # Add spacing
+                    self.show_current_directory()
+                elif user_input.lower() == 'up':
+                    self.go_up_directory()
                 elif user_input.lower() in ['refresh', 'reload']:
-                    self.console.print("[bold blue]🔄 Refreshing file list...[/bold blue]")
-                    self.discover_markdown_files()
-                    self.list_markdown_files()
+                    self.console.print("[bold blue]🔄 Refreshing content...[/bold blue]")
+                    self.discover_content()
+                    self.list_content()
+                elif user_input.lower().startswith('cd '):
+                    try:
+                        folder_num = int(user_input.split()[1])
+                        self.change_directory(folder_num)
+                    except (IndexError, ValueError):
+                        error_panel = Panel(
+                            "[bold red]Invalid command format[/bold red]\n\n" +
+                            "[bold]Correct usage:[/bold] [bold cyan]cd <number>[/bold cyan]\n\n" +
+                            "[dim]Examples:[/dim]\n" +
+                            "[dim]• cd 1  (enter the first folder)[/dim]\n" +
+                            "[dim]• cd 3  (enter the third folder)[/dim]\n\n" +
+                            "[dim]Use 'list' to see folder numbers[/dim]",
+                            title="⚠️  Usage Error",
+                            border_style="red"
+                        )
+                        self.console.print(error_panel)
                 elif user_input.lower().startswith('load '):
                     try:
-                        file_num = int(user_input.split()[1])
-                        self.load_markdown_file(file_num)
+                        item_num = int(user_input.split()[1])
+                        self.load_markdown_file(item_num)
                     except (IndexError, ValueError):
                         error_panel = Panel(
                             "[bold red]Invalid command format[/bold red]\n\n" +
                             "[bold]Correct usage:[/bold] [bold cyan]load <number>[/bold cyan]\n\n" +
                             "[dim]Examples:[/dim]\n" +
-                            "[dim]• load 1  (loads the first file)[/dim]\n" +
-                            "[dim]• load 5  (loads the fifth file)[/dim]\n\n" +
-                            "[dim]Use 'list' to see file numbers[/dim]",
+                            "[dim]• load 4  (loads the 4th item if it's a file)[/dim]\n" +
+                            "[dim]• load 7  (loads the 7th item if it's a file)[/dim]\n\n" +
+                            "[dim]Note: Only markdown files can be loaded, not folders[/dim]\n" +
+                            "[dim]Use 'list' to see item numbers and types[/dim]",
                             title="⚠️  Usage Error",
                             border_style="red"
                         )
