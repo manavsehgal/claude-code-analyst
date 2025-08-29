@@ -238,6 +238,7 @@ class MarkdownChatbot:
             
             rel_path = self.current_directory.relative_to(self.working_directory)
             self.console.print(f"[bold green]✓ Entered folder:[/bold green] [bold cyan]{rel_path}[/bold cyan]")
+            self.list_content()
             return True
         elif item_index > len(self.folders_with_markdown):
             self.console.print("[bold red]❌ That's a file, not a folder.[/bold red] Use [bold cyan]'load <number>'[/bold cyan] to load files.")
@@ -265,6 +266,7 @@ class MarkdownChatbot:
         
         rel_path = self.current_directory.relative_to(self.working_directory) if self.current_directory != self.working_directory else "."
         self.console.print(f"[bold green]✓ Moved to:[/bold green] [bold cyan]{rel_path}[/bold cyan]")
+        self.list_content()
         return True
     
     def show_help(self) -> None:
@@ -432,7 +434,7 @@ class MarkdownChatbot:
         self.console.print(pwd_panel)
     
     def _is_system_message(self, text: str) -> bool:
-        """Comprehensive system message detection to filter all internal responses."""
+        """Improved system message detection that preserves technical content."""
         if not text or not isinstance(text, str):
             return True
         
@@ -443,22 +445,14 @@ class MarkdownChatbot:
         # Convert to lowercase for case-insensitive matching
         text_lower = text.lower()
         
-        # Comprehensive system message patterns - be very aggressive
+        # System message prefixes - be more specific
         system_indicators = [
-            # Common prefixes
-            'system:', 'responsemessage:', 'systemmessage', 'resultmessage:', 'result:',
-            'assistant:', 'user:', 'human:', 'ai:', 'claude:', 'anthropic:',
+            # Common system prefixes
+            'system:', 'responsemessage:', 'systemmessage:', 'resultmessage:', 'result:',
+            'internal:', 'debug:', 'log:', 'error:', 'warning:',
             
-            # Message metadata
-            'message:', 'response:', 'reply:', 'output:', 'content:',
-            'text:', 'data:', 'payload:', 'body:',
-            
-            # Technical indicators
-            'status:', 'error:', 'warning:', 'info:', 'debug:', 'log:',
-            'timestamp:', 'id:', 'uuid:', 'token:', 'auth:',
-            
-            # Structural indicators
-            'header:', 'meta:', 'config:', 'settings:', 'params:',
+            # API/SDK related
+            'status:', 'timestamp:', 'id:', 'uuid:', 'token:', 'auth:',
             'request:', 'http:', 'api:', 'endpoint:', 'url:',
         ]
         
@@ -467,44 +461,43 @@ class MarkdownChatbot:
             if text_lower.startswith(indicator):
                 return True
         
-        # Advanced regex patterns for more complex cases
+        # Regex patterns for system messages (more conservative)
         system_patterns = [
-            r'^<[^>]*>',  # XML-like tags
-            r'^\[.*?\]:?',  # Bracketed prefixes like [System]:
-            r'^\{.*?\}:?',  # JSON-like prefixes
-            r'^\w+Message\b',  # Any word ending with 'Message'
-            r'^\w+Response\b',  # Any word ending with 'Response'
-            r'^\w+Result\b',  # Any word ending with 'Result'
+            r'^<[^>]*>',  # XML-like tags at start
+            r'^\[System\]:?',  # Specific [System]: prefix
+            r'^\{.*?\}:?\s*$',  # JSON-like objects on single line
+            r'^\w+Message\s*:',  # Word ending with 'Message' followed by colon
+            r'^\w+Response\s*:',  # Word ending with 'Response' followed by colon
+            r'^\w+Result\s*:',  # Word ending with 'Result' followed by colon
             r'^\s*$',  # Empty or whitespace only
             r'<\|.*?\|>',  # Special tokens
-            r'^[A-Z][a-z]*:\s*\w+Message',  # Pattern like "Service: SomeMessage"
-            r'^\d{4}-\d{2}-\d{2}',  # Timestamp patterns
-            r'^[0-9a-f]{8}-[0-9a-f]{4}',  # UUID patterns
+            r'^\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}',  # Full timestamp patterns
+            r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}',  # UUID patterns
         ]
         
         for pattern in system_patterns:
-            if re.match(pattern, text, re.IGNORECASE | re.MULTILINE):
+            if re.match(pattern, text, re.IGNORECASE):
                 return True
         
-        # Check for common system message content
+        # Very specific system content indicators (more conservative)
         system_content_indicators = [
-            'internal error', 'processing request', 'api response', 'server response',
-            'authentication', 'authorization', 'permission denied', 'access granted',
-            'session', 'cookie', 'token', 'bearer', 'oauth', 'jwt',
-            'database', 'query', 'transaction', 'connection', 'timeout',
-            'json parsing', 'xml parsing', 'serialization', 'deserialization',
+            'internal error occurred', 'processing request', 'api response received', 
+            'server response', 'authentication failed', 'authorization required',
+            'permission denied', 'access granted', 'session expired',
+            'json parsing error', 'xml parsing error', 'serialization failed',
         ]
         
         for indicator in system_content_indicators:
             if indicator in text_lower:
                 return True
         
-        # Filter extremely short or unusual responses that are likely system messages
-        if len(text) < 3 or (len(text) < 10 and not any(c.isalpha() for c in text)):
+        # Filter extremely short responses
+        if len(text) < 3:
             return True
         
-        # Additional check: if text looks like structured data (JSON, XML, etc.)
-        if text.startswith(('{', '[', '<')) and text.endswith(('}', ']', '>')):
+        # Check for pure structured data (JSON/XML) - but allow markdown tables
+        if (text.startswith(('{', '[')) and text.endswith(('}', ']')) and 
+            not any(char in text for char in ['|', '#', '*', '-', '_'])):
             return True
             
         return False
@@ -633,24 +626,17 @@ Here's my question: {user_message}"""
                             if text_content and not self._is_system_message(text_content):
                                 content_to_display = text_content
                         else:
-                            # Handle other content types with extra caution
+                            # Handle other content types - be less restrictive
                             content_str = self._sanitize_text(str(message.content))
-                            # Be extra strict with non-text content
-                            if (content_str and 
-                                not self._is_system_message(content_str) and 
-                                len(content_str) > 10 and  # Must be substantial content
-                                any(word in content_str.lower() for word in ['the', 'and', 'or', 'is', 'are', 'was', 'were'])):
+                            if (content_str and not self._is_system_message(content_str)):
                                 content_to_display = content_str
                     else:
-                        # Handle messages without content attribute with maximum caution
+                        # Handle messages without content attribute - be less restrictive
                         msg_str = self._sanitize_text(str(message))
                         # Only display if it looks like genuine user-facing content
                         if (msg_str and 
                             not self._is_system_message(msg_str) and
-                            len(msg_str) > 15 and  # Must be substantial
-                            not any(tech_word in msg_str.lower() for tech_word in 
-                                   ['message', 'response', 'result', 'status', 'error', 'warning', 'system']) and
-                            any(word in msg_str.lower() for word in ['the', 'and', 'or', 'is', 'are', 'was', 'were'])):
+                            len(msg_str) > 10):  # Reduced length requirement
                             content_to_display = msg_str
                     
                     # Display content only if it passed all filters
@@ -680,13 +666,25 @@ Here's my question: {user_message}"""
             r'^\s*[-*+]\s',  # Lists
             r'^\s*\d+\.\s',  # Numbered lists
             r'\[.*\]\(.*\)',  # Links
-            r'^\|.*\|',  # Tables
+            r'^\|.*\|.*\|',  # Tables (at least 2 pipes)
+            r'^\s*\|.*\|.*\|',  # Tables with leading spaces
             r'^>\s',  # Blockquotes
+            r'^---+\s*$',  # Horizontal rules
+            r'^\s*\|[\s\-:]*\|',  # Table separators
         ]
         
         for pattern in markdown_indicators:
             if re.search(pattern, text, re.MULTILINE):
                 return True
+        
+        # Additional checks for tables
+        lines = text.split('\n')
+        table_line_count = 0
+        for line in lines:
+            if '|' in line and line.count('|') >= 2:
+                table_line_count += 1
+                if table_line_count >= 2:  # If we have at least 2 lines with pipes, likely a table
+                    return True
                 
         return False
     
