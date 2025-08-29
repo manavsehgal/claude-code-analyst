@@ -470,15 +470,15 @@ Here's my question: {user_message}"""
         chat_display.scroll_end(animate=True)
         
         try:
-            # Simple approach: collect all content and show debug info
-            all_chunks = []
+            # Accumulate the complete response
+            accumulated_response = ""
             message_count = 0
+            last_valid_content = ""
             
             response_widget.update("🤖 **Claude:** *Receiving response...*")
             
             async for message in query(prompt=prompt):
                 message_count += 1
-                response_widget.update(f"🤖 **Claude:** *Processing message {message_count}...*")
                 
                 if hasattr(message, 'content'):
                     chunk = None
@@ -499,24 +499,38 @@ Here's my question: {user_message}"""
                         # Very basic system message filtering
                         chunk_lower = chunk.lower()
                         is_system = any(pattern in chunk_lower for pattern in [
-                            'duration_ms=', 'session_id=', '(subtype=', 'total_cost_usd='
+                            'duration_ms=', 'session_id=', '(subtype=', 'total_cost_usd=',
+                            'input_tokens=', 'output_tokens=', 'cache_read_tokens='
                         ])
                         
                         if not is_system:
-                            all_chunks.append(chunk)
-                            # Show latest chunk immediately
-                            response_widget.update(f"🤖 **Claude:**\n\n{chunk}")
+                            # This is likely the actual response content
+                            # Most responses come as a single complete chunk
+                            # If it's longer than what we have, it's probably the full response
+                            if len(chunk) > len(accumulated_response):
+                                accumulated_response = chunk
+                                last_valid_content = chunk
+                            else:
+                                # It might be an incremental chunk, append if it's new content
+                                if chunk not in accumulated_response:
+                                    accumulated_response += "\n" + chunk
+                            
+                            # Update display with accumulated content
+                            response_widget.update(f"🤖 **Claude:**\n\n{accumulated_response}")
                             chat_display.scroll_end(animate=False)
             
             # Final handling
-            if all_chunks:
-                # Use the longest/most complete response
-                final_response = max(all_chunks, key=len)
-                response_widget.update(f"🤖 **Claude:**\n\n{final_response}")
-                self.chat_history.append({"role": "assistant", "content": final_response})
+            if accumulated_response:
+                # Show the complete accumulated response
+                response_widget.update(f"🤖 **Claude:**\n\n{accumulated_response}")
+                self.chat_history.append({"role": "assistant", "content": accumulated_response})
+            elif last_valid_content:
+                # Fallback to last valid content if accumulation failed
+                response_widget.update(f"🤖 **Claude:**\n\n{last_valid_content}")
+                self.chat_history.append({"role": "assistant", "content": last_valid_content})
             else:
-                # Show debug information
-                debug_info = f"*Debug: Received {message_count} messages, but no valid content found*"
+                # Show debug information if no content was found
+                debug_info = f"*No response received. Debug: {message_count} messages processed*"
                 response_widget.update(f"🤖 **Claude:** {debug_info}")
             
         except Exception as e:

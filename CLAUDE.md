@@ -10,22 +10,46 @@ This is a Python project for analyzing Claude Code interactions, managed by uv f
 # Install dependencies
 uv sync
 
+# Install development dependencies
+uv sync --dev
+
 # Run main script
 uv run python main.py
 
 # Run tests
 uv run pytest tests/
+
+# Run tests with timeout (default 300s per test)
+uv run pytest tests/ --timeout=60
 ```
 
-### Linting and Type Checking
+### Code Quality Tools
 ```bash
-# Run linters (when configured)
+# Linting - Check code quality issues
 uv run ruff check .
-uv run ruff format .
+uv run ruff check --fix .  # Auto-fix issues
 
-# Type checking (when mypy is added)
+# Formatting - Format code with Black
+uv run black .  # Format all Python files
+uv run black --check .  # Check formatting without changes
+
+# Type Checking - Static type analysis
 uv run mypy .
+uv run mypy scripts/ --ignore-missing-imports
+
+# All-in-one quality check
+uv run ruff check . && uv run black --check . && uv run mypy .
 ```
+
+### Development Tools
+The project includes these pre-configured development tools:
+
+- **ruff** (v0.8.4+): Fast Python linter with 120-char line length, targets Python 3.13
+- **black** (v24.11.0+): Code formatter with 120-char line length, ensures consistent style
+- **mypy** (v1.14.1+): Static type checker for Python code
+- **pytest** (v8.3.5+): Testing framework with automatic test discovery
+- **pytest-timeout** (v2.3.1+): Prevents hanging tests (300s default timeout)
+- **ipdb** (v0.13.13+): Interactive Python debugger for troubleshooting
 
 ## Core Project Structure
 - `scripts/` - Python scripts for analysis tasks
