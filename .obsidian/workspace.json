@@ -171,6 +171,7 @@
   },
   "active": "3559bb3bcfe24003",
   "lastOpenFiles": [
+    "test_table_fix.py",
     "apps/markdown_chat/run.py.tmp.54732.1756476384682",
     "apps/markdown_chat/run.py.tmp.54732.1756476379703",
     "apps/markdown_chat/config.yml",
@@ -181,7 +182,6 @@
     "apps/markdown_chat_textual/run.py",
     "apps/markdown_chat_textual",
     "apps/markdown_chat/run.py.tmp.7903.1756443016556",
-    "apps/markdown_chat/run.py.tmp.7903.1756442168610",
     "apps/scikit_chat/README.md",
     "apps/README.md",
     "apps/llm_report_chatbot/README.md",

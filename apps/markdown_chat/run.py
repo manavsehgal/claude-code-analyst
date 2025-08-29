@@ -785,8 +785,36 @@ class MarkdownChatbot:
         
         return tables
     
+    def _convert_markdown_to_rich(self, text: str) -> str:
+        """Convert markdown formatting in text to Rich markup."""
+        if not text or not isinstance(text, str):
+            return str(text) if text is not None else ''
+        
+        # Convert common markdown patterns to Rich markup
+        result = text
+        
+        # Bold: **text** → [bold]text[/bold]
+        result = re.sub(r'\*\*([^*]+)\*\*', r'[bold]\1[/bold]', result)
+        
+        # Italic: *text* → [italic]text[/italic] (but avoid matching **text**)
+        result = re.sub(r'(?<!\*)\*([^*]+)\*(?!\*)', r'[italic]\1[/italic]', result)
+        
+        # Inline code: `code` → [dim]code[/dim]
+        result = re.sub(r'`([^`]+)`', r'[dim]\1[/dim]', result)
+        
+        # Links: [text](url) → text (just show the link text in tables)
+        result = re.sub(r'\[([^\]]+)\]\([^)]+\)', r'\1', result)
+        
+        # Strikethrough: ~~text~~ → [strikethrough]text[/strikethrough]
+        result = re.sub(r'~~([^~]+)~~', r'[strikethrough]\1[/strikethrough]', result)
+        
+        # Simple underlines: _text_ → [underline]text[/underline] (only if not part of file paths)
+        result = re.sub(r'(?<![/\w])_([^_\s][^_]*[^_\s])_(?![/\w])', r'[underline]\1[/underline]', result)
+        
+        return result.strip()
+    
     def _render_rich_table(self, table_data: dict) -> Table:
-        """Create a Rich Table widget from parsed table data."""
+        """Create a Rich Table widget from parsed table data with markdown formatting support."""
         # Create Rich table with clean styling
         rich_table = Table(
             box=box.SIMPLE,
@@ -797,17 +825,25 @@ class MarkdownChatbot:
             collapse_padding=True
         )
         
-        # Add columns
+        # Add columns with converted headers
         for header in table_data['headers']:
-            rich_table.add_column(header.strip(), overflow="fold")
+            formatted_header = self._convert_markdown_to_rich(header.strip())
+            rich_table.add_column(formatted_header, overflow="fold")
         
-        # Add rows
+        # Add rows with markdown conversion for each cell
         for row in table_data['rows']:
             # Ensure row has same number of cells as headers
             padded_row = row[:]
             while len(padded_row) < len(table_data['headers']):
                 padded_row.append('')  # Fill missing cells
-            rich_table.add_row(*padded_row[:len(table_data['headers'])])
+            
+            # Convert each cell's markdown to Rich markup
+            formatted_row = []
+            for cell in padded_row[:len(table_data['headers'])]:
+                formatted_cell = self._convert_markdown_to_rich(str(cell))
+                formatted_row.append(formatted_cell)
+            
+            rich_table.add_row(*formatted_row)
         
         return rich_table
     
