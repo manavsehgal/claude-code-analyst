@@ -454,6 +454,11 @@ class MarkdownChatbot:
             # API/SDK related
             'status:', 'timestamp:', 'id:', 'uuid:', 'token:', 'auth:',
             'request:', 'http:', 'api:', 'endpoint:', 'url:',
+            
+            # Claude Code SDK specific patterns
+            '(subtype=', '(data=', 'duration_ms=', 'session_id=', 'usage={',
+            'total_cost_usd=', 'output_tokens=', 'input_tokens=', 'is_error=',
+            'num_turns=', 'cache_creation_input_tokens=', 'cache_read_input_tokens=',
         ]
         
         # Check for exact matches at start of text
@@ -473,6 +478,13 @@ class MarkdownChatbot:
             r'<\|.*?\|>',  # Special tokens
             r'^\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}',  # Full timestamp patterns
             r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}',  # UUID patterns
+            r'^\(subtype=.*\)$',  # Claude Code SDK message format
+            r'^\(data=.*\)$',  # Claude Code SDK data format
+            r'duration_ms=\d+',  # SDK timing information
+            r'session_id=[\'\"][0-9a-f-]+[\'\"]',  # SDK session ID
+            r'total_cost_usd=[\d\.]+',  # SDK cost information
+            r'usage=\{.*\}',  # SDK usage statistics
+            r'result=[\'\"].*[\'\"].*\)$',  # SDK result messages
         ]
         
         for pattern in system_patterns:
@@ -604,6 +616,7 @@ Here's my question: {user_message}"""
             task = progress.add_task("thinking", total=None)
             
             response_received = False
+            
             try:
                 async for message in query(prompt=prompt):
                     if not response_received:
@@ -639,7 +652,7 @@ Here's my question: {user_message}"""
                             len(msg_str) > 10):  # Reduced length requirement
                             content_to_display = msg_str
                     
-                    # Display content only if it passed all filters
+                    # Display content if it passed all filters
                     if content_to_display:
                         await self._stream_text_output(content_to_display)
                             
