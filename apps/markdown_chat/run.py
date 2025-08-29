@@ -793,6 +793,29 @@ class MarkdownChatbot:
         # Convert common markdown patterns to Rich markup
         result = text
         
+        # Headings: # H1 → [bold cyan]H1[/bold cyan]
+        result = re.sub(r'^#{6}\s+(.+)$', r'[dim]\1[/dim]', result, flags=re.MULTILINE)  # H6
+        result = re.sub(r'^#{5}\s+(.+)$', r'[italic]\1[/italic]', result, flags=re.MULTILINE)  # H5
+        result = re.sub(r'^#{4}\s+(.+)$', r'[underline]\1[/underline]', result, flags=re.MULTILINE)  # H4
+        result = re.sub(r'^#{3}\s+(.+)$', r'[bold yellow]\1[/bold yellow]', result, flags=re.MULTILINE)  # H3
+        result = re.sub(r'^#{2}\s+(.+)$', r'[bold green]\1[/bold green]', result, flags=re.MULTILINE)  # H2
+        result = re.sub(r'^#{1}\s+(.+)$', r'[bold cyan]\1[/bold cyan]', result, flags=re.MULTILINE)  # H1
+        
+        # Blockquotes: > text → [dim]▶ text[/dim]
+        result = re.sub(r'^>\s*(.+)$', r'[dim]▶ \1[/dim]', result, flags=re.MULTILINE)
+        
+        # Horizontal rules: --- or *** → ────────────────
+        result = re.sub(r'^(\*{3,}|-{3,}|_{3,})\s*$', r'[dim]────────────────[/dim]', result, flags=re.MULTILINE)
+        
+        # Unordered lists: - item → • item
+        result = re.sub(r'^(\s*)([-*+])\s+(.+)$', r'\1[bold]•[/bold] \3', result, flags=re.MULTILINE)
+        
+        # Numbered lists: 1. item → 1. item (preserve but style number)
+        result = re.sub(r'^(\s*)(\d+)\.\s+(.+)$', r'\1[bold cyan]\2.[/bold cyan] \3', result, flags=re.MULTILINE)
+        
+        # Code blocks: ```code``` → [dim]code[/dim] (simple handling for inline)
+        result = re.sub(r'```([^`]+)```', r'[dim]\1[/dim]', result, flags=re.DOTALL)
+        
         # Bold: **text** → [bold]text[/bold]
         result = re.sub(r'\*\*([^*]+)\*\*', r'[bold]\1[/bold]', result)
         
@@ -802,14 +825,17 @@ class MarkdownChatbot:
         # Inline code: `code` → [dim]code[/dim]
         result = re.sub(r'`([^`]+)`', r'[dim]\1[/dim]', result)
         
-        # Links: [text](url) → text (just show the link text in tables)
-        result = re.sub(r'\[([^\]]+)\]\([^)]+\)', r'\1', result)
+        # Links: [text](url) → [blue underline]text[/blue underline] (show styled link text)
+        result = re.sub(r'\[([^\]]+)\]\([^)]+\)', r'[blue underline]\1[/blue underline]', result)
         
         # Strikethrough: ~~text~~ → [strikethrough]text[/strikethrough]
         result = re.sub(r'~~([^~]+)~~', r'[strikethrough]\1[/strikethrough]', result)
         
         # Simple underlines: _text_ → [underline]text[/underline] (only if not part of file paths)
         result = re.sub(r'(?<![/\w])_([^_\s][^_]*[^_\s])_(?![/\w])', r'[underline]\1[/underline]', result)
+        
+        # Convert HTML line breaks to actual newlines for Rich rendering
+        result = re.sub(r'<br\s*/?>', '\n', result, flags=re.IGNORECASE)
         
         return result.strip()
     
