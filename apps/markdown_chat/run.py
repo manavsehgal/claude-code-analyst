@@ -23,6 +23,14 @@ from rich.status import Status
 from rich.table import Table
 from rich.text import Text
 
+# Modern markdown parsing with table support
+try:
+    from markdown_it import MarkdownIt
+    MARKDOWN_IT_AVAILABLE = True
+except ImportError:
+    MARKDOWN_IT_AVAILABLE = False
+    MarkdownIt = None
+
 # Add a graceful fallback for the claude-code-sdk import
 try:
     from claude_code_sdk import ClaudeCodeOptions, ClaudeSDKClient, query, CLINotFoundError, ProcessError
@@ -659,44 +667,41 @@ class MarkdownChatbot:
         return '\n'.join(cleaned_lines)
 
     def _maximum_aggressive_clean(self, text: str) -> str:
-        """MAXIMUM AGGRESSIVE cleaning - eliminate ALL possible spacing issues."""
+        """Smart cleaning - preserve markdown tables and formatting while removing excess."""
         if not text:
             return text
 
-        # Strip everything
-        text = text.strip()
+        # Don't clean if it looks like it contains tables
+        if '|' in text and text.count('|') >= 4:
+            # Minimal cleaning for table content - just trim and normalize line endings
+            text = text.strip()
+            # Preserve double newlines for paragraph breaks but remove excessive spacing
+            text = re.sub(r'\n{3,}', '\n\n', text)
+            return text
 
-        # Split into lines for aggressive processing
+        # For non-table content, do more aggressive cleaning
+        text = text.strip()
+        
+        # Split into lines for processing
         lines = text.split('\n')
         result_lines = []
-
-        i = 0
-        while i < len(lines):
-            line = lines[i].rstrip()  # Remove trailing spaces
-
-            # Skip completely empty lines
-            if not line.strip():
-                i += 1
-                continue
-
-            # Check if this starts a table (line contains pipes)
-            if '|' in line and line.count('|') >= 2:
-                # Found table start - ensure ZERO blank lines before it
-                # Add the table line directly
+        
+        for line in lines:
+            line = line.rstrip()
+            # Keep non-empty lines
+            if line.strip():
                 result_lines.append(line)
-            else:
-                # Regular content line
-                result_lines.append(line)
-
-            i += 1
-
-        # Join with single newlines only - NO blank lines anywhere
+            # Keep ONE empty line between paragraphs
+            elif result_lines and result_lines[-1].strip():
+                if len(result_lines) >= 2 and not result_lines[-2].strip():
+                    continue  # Skip multiple empty lines
+                result_lines.append('')
+        
         result = '\n'.join(result_lines)
-
-        # Final aggressive cleanup - remove any remaining multiple newlines
-        while '\n\n' in result:
-            result = result.replace('\n\n', '\n')
-
+        
+        # Final cleanup - no more than one blank line
+        result = re.sub(r'\n{3,}', '\n\n', result)
+        
         return result
 
     def _parse_markdown_tables(self, content: str) -> list[dict]:
@@ -846,58 +851,229 @@ class MarkdownChatbot:
         return rich_table
 
     def _display_clean_response(self, content: str) -> None:
-        """Display response with proper table rendering using Rich Table widgets."""
+        """Display response with hybrid approach - custom table rendering + Rich for other content."""
         try:
-            # Parse tables from content
-            tables = self._parse_markdown_tables(content)
-
-            if tables:
-                # Content contains tables - render with proper formatting
-                self.console.print("[bold green]🤖 Claude:[/bold green]")
-
-                lines = content.split('\n')
-                current_line = 0
-
-                for table in tables:
-                    # Print any content before this table
-                    while current_line < table['start_line']:
-                        line = lines[current_line].strip()
-                        if line:
+            self.console.print("[bold green]🤖 Claude:[/bold green]\n")
+            
+            # Split content into sections - tables vs other content
+            sections = self._split_content_into_sections(content)
+            
+            for section in sections:
+                if section['type'] == 'table':
+                    # Render table using Rich Table
+                    parsed_table = self._parse_table_lines(section['content'])
+                    if parsed_table:
+                        rich_table = self._create_enhanced_rich_table(parsed_table)
+                        self.console.print(rich_table)
+                        self.console.print()  # Add spacing after table
+                    else:
+                        # Fallback if parsing fails
+                        for line in section['content']:
                             self.console.print(line)
-                        current_line += 1
-
-                    # Render the table using Rich Table widget
-                    rich_table = self._render_rich_table(table)
-                    self.console.print(rich_table)
-
-                    # Skip the table lines
-                    current_line = table['end_line'] + 1
-
-                # Print any remaining content after last table
-                while current_line < len(lines):
-                    line = lines[current_line].strip()
-                    if line:
-                        self.console.print(line)
-                    current_line += 1
-            else:
-                # No tables - use Rich markdown for better formatting
-                if self._looks_like_markdown(content):
-                    markdown_content = Markdown(content)
-                    panel = Panel(
-                        markdown_content,
-                        title="[bold green]🤖 Claude[/bold green]",
-                        border_style="green",
-                        padding=(0, 1)  # Minimal padding
-                    )
-                    self.console.print(panel)
+                        self.console.print()
                 else:
-                    self.console.print("\n[bold green]🤖 Claude:[/bold green]")
-                    self.console.print(content)
+                    # Render other content using Rich's markdown
+                    section_text = '\n'.join(section['content'])
+                    if section_text.strip():
+                        # Use Rich's markdown for non-table content
+                        markdown_content = Markdown(section_text)
+                        self.console.print(markdown_content)
+                        self.console.print()
 
-        except Exception:
-            # Fallback to simple display
-            self.console.print("\n[bold green]🤖 Claude:[/bold green]")
+        except Exception as e:
+            # Final fallback to simple display
+            self.console.print("[bold green]🤖 Claude:[/bold green]")
             self.console.print(content)
+    
+    def _split_content_into_sections(self, content: str) -> list[dict]:
+        """Split content into table and non-table sections."""
+        lines = content.split('\n')
+        sections = []
+        current_section = {'type': 'text', 'content': []}
+        
+        i = 0
+        while i < len(lines):
+            line = lines[i]
+            
+            # Check if this starts a table
+            if self._is_table_start(lines, i):
+                # Save current non-table section if it has content
+                if current_section['content']:
+                    sections.append(current_section)
+                
+                # Extract table section
+                table_end = self._find_table_end(lines, i)
+                table_content = lines[i:table_end + 1]
+                
+                sections.append({'type': 'table', 'content': table_content})
+                
+                # Start new text section
+                current_section = {'type': 'text', 'content': []}
+                i = table_end + 1
+            else:
+                # Add to current text section
+                current_section['content'].append(line)
+                i += 1
+        
+        # Add final section if it has content
+        if current_section['content']:
+            sections.append(current_section)
+        
+        return sections
+    
+    def _create_enhanced_rich_table(self, table_data: dict) -> Table:
+        """Create an enhanced Rich Table with better styling."""
+        table = Table(
+            box=box.ROUNDED,
+            show_header=True,
+            header_style="bold cyan",
+            show_lines=False,
+            pad_edge=False,
+            expand=False
+        )
+        
+        # Add columns with better formatting
+        for header in table_data['headers']:
+            # Clean and format header
+            clean_header = header.strip().replace('**', '').replace('*', '')
+            table.add_column(clean_header, overflow="fold", style="white")
+        
+        # Add rows with formatting
+        for row in table_data['rows']:
+            # Format each cell
+            formatted_row = []
+            for cell in row:
+                # Basic markdown to Rich formatting
+                formatted_cell = cell.strip()
+                # Convert **bold** to [bold]text[/bold]
+                formatted_cell = re.sub(r'\*\*([^*]+)\*\*', r'[bold]\1[/bold]', formatted_cell)
+                # Convert *italic* to [italic]text[/italic]
+                formatted_cell = re.sub(r'\*([^*]+)\*', r'[italic]\1[/italic]', formatted_cell)
+                # Convert `code` to [dim]code[/dim]
+                formatted_cell = re.sub(r'`([^`]+)`', r'[dim]\1[/dim]', formatted_cell)
+                formatted_row.append(formatted_cell)
+            
+            table.add_row(*formatted_row)
+        
+        return table
+    
+    def _contains_markdown_table(self, content: str) -> bool:
+        """Check if content contains markdown tables."""
+        lines = content.split('\n')
+        for i in range(len(lines) - 1):
+            # Look for table header separator pattern
+            if '|' in lines[i] and i + 1 < len(lines):
+                next_line = lines[i + 1]
+                # Check for separator line with dashes
+                if re.match(r'^\s*\|[\s\-:]+\|', next_line):
+                    return True
+        return False
+    
+    def _render_content_with_tables(self, content: str) -> None:
+        """Render content that contains markdown tables."""
+        self.console.print("[bold green]🤖 Claude:[/bold green]\n")
+        
+        lines = content.split('\n')
+        i = 0
+        
+        while i < len(lines):
+            # Check if this starts a table
+            if self._is_table_start(lines, i):
+                # Extract and render the table
+                table_end = self._find_table_end(lines, i)
+                table_lines = lines[i:table_end + 1]
+                
+                # Parse and render the table
+                parsed_table = self._parse_table_lines(table_lines)
+                if parsed_table:
+                    rich_table = self._create_rich_table(parsed_table)
+                    self.console.print(rich_table)
+                else:
+                    # If parsing fails, show as formatted text
+                    for line in table_lines:
+                        self.console.print(line)
+                
+                i = table_end + 1
+            else:
+                # Regular content - print as is or use markdown for formatting
+                line = lines[i]
+                if line.strip():
+                    # Apply basic markdown formatting
+                    if line.startswith('#'):
+                        # Headers
+                        self.console.print(self._convert_markdown_to_rich(line))
+                    elif line.startswith('```'):
+                        # Code block start/end
+                        self.console.print(line)
+                    else:
+                        self.console.print(line)
+                i += 1
+    
+    def _is_table_start(self, lines: list[str], index: int) -> bool:
+        """Check if the current line starts a markdown table."""
+        if index >= len(lines) - 1:
+            return False
+        
+        current = lines[index]
+        next_line = lines[index + 1] if index + 1 < len(lines) else ""
+        
+        # Check for table pattern: header line with pipes followed by separator
+        if '|' in current and '|' in next_line:
+            # Check if next line is a separator (contains dashes and pipes)
+            if re.match(r'^\s*\|[\s\-:]+\|', next_line):
+                return True
+        return False
+    
+    def _find_table_end(self, lines: list[str], start: int) -> int:
+        """Find where a markdown table ends."""
+        for i in range(start + 2, len(lines)):  # Skip header and separator
+            # Table ends when we hit a line without pipes or an empty line
+            if not lines[i].strip() or '|' not in lines[i]:
+                return i - 1
+        return len(lines) - 1
+    
+    def _parse_table_lines(self, table_lines: list[str]) -> dict | None:
+        """Parse markdown table lines into structured data."""
+        if len(table_lines) < 2:
+            return None
+        
+        try:
+            # Parse header
+            header_line = table_lines[0].strip()
+            headers = [cell.strip() for cell in header_line.strip('|').split('|')]
+            
+            # Skip separator line (index 1)
+            
+            # Parse data rows
+            rows = []
+            for line in table_lines[2:]:
+                if line.strip() and '|' in line:
+                    cells = [cell.strip() for cell in line.strip('|').split('|')]
+                    # Ensure row has same number of cells as headers
+                    while len(cells) < len(headers):
+                        cells.append('')
+                    rows.append(cells[:len(headers)])
+            
+            if headers and rows:
+                return {'headers': headers, 'rows': rows}
+        except:
+            pass
+        
+        return None
+    
+    def _create_rich_table(self, table_data: dict) -> Table:
+        """Create a Rich Table from parsed table data."""
+        table = Table(box=box.SIMPLE, show_header=True, header_style="bold cyan")
+        
+        # Add columns
+        for header in table_data['headers']:
+            table.add_column(header, overflow="fold")
+        
+        # Add rows
+        for row in table_data['rows']:
+            table.add_row(*row)
+        
+        return table
 
     async def chat_with_claude(self, user_message: str) -> None:
         """Send a message to Claude - ULTRA SIMPLE: no streaming, just clean response."""
@@ -959,11 +1135,35 @@ Here's my question: {user_message}"""
 
                 # Process collected content
                 if all_content:
-                    # Take the longest content (most complete)
-                    complete_response = max(all_content, key=len)
+                    # For streaming responses, take the last (most complete) response
+                    # since Claude SDK often sends incremental updates
+                    if len(all_content) > 1:
+                        # Check if responses are incremental (each longer than previous)
+                        is_incremental = all(
+                            len(all_content[i]) <= len(all_content[i+1]) 
+                            for i in range(len(all_content)-1)
+                        )
+                        
+                        if is_incremental:
+                            # Take the last (most complete) response
+                            complete_response = all_content[-1]
+                        else:
+                            # Not incremental, join unique content
+                            complete_response = '\n'.join(all_content)
+                    else:
+                        complete_response = all_content[0]
 
-                    # Clean and display ONCE - MAXIMUM AGGRESSIVE
-                    cleaned_response = self._maximum_aggressive_clean(complete_response)
+                    # Check if response likely contains tables
+                    has_tables = ('|' in complete_response and 
+                                 complete_response.count('|') >= 4 and
+                                 ('---' in complete_response or '|--' in complete_response))
+                    
+                    if has_tables:
+                        # Minimal cleaning for table content - preserve exact formatting
+                        cleaned_response = complete_response.strip()
+                    else:
+                        # Apply smart cleaning for non-table content
+                        cleaned_response = self._maximum_aggressive_clean(complete_response)
 
                     if cleaned_response and len(cleaned_response.strip()) > 10:
                         self._display_clean_response(cleaned_response)

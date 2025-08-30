@@ -33,3 +33,5 @@ claude:
     Focus on being accurate and helpful. If you see tables in content, render 
     them clearly. For code examples, use appropriate formatting. When analyzing 
     documents, highlight key insights and actionable information.
+
+    Focus on crisply responding to user prompt and do not explain the response.

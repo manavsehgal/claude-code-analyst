@@ -171,6 +171,8 @@
   },
   "active": "3559bb3bcfe24003",
   "lastOpenFiles": [
+    "apps/markdown_chat/run.py.tmp.92309.1756532295139",
+    "apps/markdown_chat/run.py.tmp.92309.1756531782769",
     "apps/markdown_chat/run.py.tmp.78009.1756483963648",
     "apps/markdown_chat/run.py.tmp.78009.1756483958083",
     "apps/markdown_chat_textual/run.py.tmp.54732.1756479604333",
@@ -180,8 +182,6 @@
     "apps/markdown_chat/config.yml",
     "apps/markdown_chat_textual/run.py.tmp.33322.1756450159313",
     "apps/markdown_chat_textual/run.py.tmp.33322.1756449594458",
-    "apps/markdown_chat_textual/__pycache__/run.cpython-313.pyc",
-    "apps/markdown_chat_textual/__pycache__",
     "apps/scikit_chat/README.md",
     "apps/README.md",
     "apps/llm_report_chatbot/README.md",
