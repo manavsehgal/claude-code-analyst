@@ -1,0 +1,49 @@
+# Glean Expands Horizontal Agent Platform, Delivers Dozens of Agents and Open Interoperability Across the Enterprise
+
+https://www.glean.com/press/glean-expands-horizontal-agent-platform-delivers-dozens-of-agents-and-open-interoperability-across-the-enterprise
+
+Published May 20, 2025.
+
+Now generally available, Glean Agents empowers organizations to move beyond experimentation and embed AI agents across individual employee and business workflows
+
+‍San Francisco, CA – Glean:GO – May 20, 2025 – Work AI leader Glean today announced the general availability and expansion of Glean Agents, the open, horizontal environment for building, deploying, orchestrating, and governing AI agents at work. With broader LLM choice, expanded MCP server support for agent interoperability, complex workflow automation, and built-in governance, Glean makes AI agents real, secure, and enterprise-ready, empowering every employee and team to build, use, and scale agents.
+
+Interest in AI agents is accelerating. Yet fragmented departmental tools, limited access to enterprise data, inconsistent performance, and mounting security concerns have made it difficult to operationalize them reliably and with confidence, leaving the promise of AI agents largely unfulfilled. 
+
+Glean addresses these challenges with an open, horizontal environment that brings AI agents into production - grounded in enterprise context and robust security, built to scale. Today’s announcement gives enterprises the tools to move beyond experimentation and operationalize agents among every employee and departmental workflows with the visibility, control, and trust required for enterprise success.
+
+Glean Agents: An open, horizontal agent environment. Glean gives organizations control over where agents run and which models they use, enabling them to experiment, adapt, and adopt the latest AI innovations without lock-in.
+Democratize access to agents: With Glean’s natural language agent builder, employees can construct agents by describing desired outcomes in everyday, natural language, and share them through Glean’s agent library to drive efficiency and collaboration at work.
+Choose the best model for every agent task: Glean’s agent builder now supports per-step model selection and temperature control to optimize agent quality, speed, and cost.
+Access rapid innovation from the entire model ecosystem: The new Glean model hub provides agents access to models across Amazon Bedrock, Google Vertex AI, and Azure OpenAI, while the Glean universal model key unlocks 15 leading LLMs, across all major hyperscaler ecosystems - eliminating the complexity of procuring models individually.
+Power agent interoperability at scale: A new hosted MCP server enables agents on any platform to securely leverage Glean Search and Assistant to access data indexed in Glean or coordinate directly with Glean Agents to accomplish joint tasks.
+Build and control Glean agents with code: A new Glean Agents API provides the core building blocks to build and run agents with code and facilitates open agent-to-agent communication and orchestration.
+Observe and optimize agent outcomes: Integrated agent observability and evals give builders step-by-step insight into agent behavior, enabling rapid diagnosis of issues, deeper understanding of multi-step processes, and faster iteration for more accurate outcomes.
+First on-premises deployment architecture for Glean: Running on Dell’s trusted AI Factory infrastructure, a new collaboration between Glean and Dell will enable enterprises to securely deploy Glean’s enterprise search and AI agents within their own data centers, combining the security of on-premises deployment with the agility and scale typically reserved for SaaS. 
+Dozens of new, ready-to-use agents for employees and departments: Glean provides a library of prebuilt starter agents designed to accelerate adoption and deliver instant value across both business-critical and personal workflows. 
+Quickstart agents: Glean provides 30+ prebuilt agents across sales, engineering, IT, and HR, ready to customize and deploy for common tasks like prospecting, ticket resolution, code review, and help desk automation. Prebuilt agents jump-start adoption, shorten time to value, and help teams realize business impact faster.
+Personal productivity agents: New personal agents help employees stay on top of daily tasks like meeting prep, action item summaries, and performance reviews, all powered by each user’s personal graph for added context.
+Deep research agent: Glean helps employees tackle complex questions by combining company and world knowledge to deliver thorough, citation-backed research with detailed analysis and flexible depth based on user needs.
+Structured query agent for Snowflake Cortex AI: A new integration with Snowflake Cortex Analyst enables users and Glean agents to query data stored in Snowflake using natural language, combining real-time analytics with enterprise knowledge to drive faster, more confident decisions. 
+Glean’s partnership with Workday: Glean and Workday are unveiling plans to enable agent-to-agent collaboration that will seamlessly exchange information and initiate actions across both the Glean and Workday platforms, streamlining HR and Finance workflows. By uniting Workday’s leading HR and finance platform with Glean’s ability to provide comprehensive enterprise-wide insights, joint customers will be able to seamlessly perform HR and finance tasks with greater insights and context.
+Glean Protect: Secure AI, by design. Glean empowers organizations to scale AI safely, ensuring data is AI-ready and autonomous agents operate securely to drive meaningful work.
+Protect against AI-specific threats: Built-in safeguards prevent prompt injection and jailbreak attempts in the Glean platform, ensuring agents behave securely in every environment.
+Reduce sensitive data risk: New sensitive content protections automatically detect and remediate overshared sensitive data across 100+ systems. Powered by AI security models layered over infotype detection, the dashboards distinguish true risk from noise, giving teams clearer visibility over data exposure.
+Manage access with precision: New, expanded permissions infrastructure lets customers control who can run, view, or edit agents with sophisticated, granular access controls, ensuring secure, responsible AI use aligned with organizational policies.
+“With Glean Agents, we’re just beginning to explore the possibilities - from accelerating content creation to streamlining cross-functional collaboration - and we’re really excited about the potential impact and the limitless possibilities the platform can unlock across our teams.” – Tadeu Faedrich, Senior Engineering Manager, Booking.com. 
+
+“AI agents should be in the hands of every employee and driving outcomes across the entire enterprise,” said Arvind Jain, Founder & CEO, Glean. “Glean Agents turns that vision into a reality with an open, interoperable platform that integrates across systems, supports leading LLMs, and makes it easy to build and scale agents that actually move the business forward.”
+
+“As organizations look to operationalize AI across their workforces, the ability to build, orchestrate, and manage agents at scale is becoming a critical requirement,” said Andrew Gens, Research Analyst, AI Software, IDC. “Success depends not just on innovation, but on control, interoperability, and enterprise alignment. Platforms like Glean’s that address these needs will be essential in moving pilot projects to production-grade AI adoption.” 
+
+Availability:
+
+Available today: Glean Agents capabilities including natural language agent builder, agent library, quickstart agents, agentic reasoning engine, agent guardrails, sensitive content protection, agent sharing, model hub with new model families (Deepseek, Nova), universal model key, per-step agent model choice, per-step agent temperature control, structured query analytics agents for Snowflake Cortex Analyst, Databricks Genie, Salesforce, and Jira 
+Beta: Agent triggering, looping, observability and evals, Glean Agents API and calling third-party agents, hosted MCP server, deep research agent, companion, AI security against prompt injection attacks
+Coming soon: Agent routing, sensitive content models, new model families (Llama)
+Learn More:
+
+Blog: Glean expands horizontal, agent platform with open agent interoperability, dozens of personal and business agents, and comprehensive AI security‍
+Today, Glean also announced collaborations with Dell, Palo Alto Networks, Snowflake, and Workday.
+About Glean
+Glean is the Work AI platform that connects and understands all your enterprise data, to generate trusted answers and automate work grounded in company knowledge. Using Glean’s powerful search and RAG technology to retrieve the most relevant, up-to-date information, Glean's AI assistant generates highly personalized answers based on your company’s unique enterprise knowledge graph. All answers are secure, private, permissions-aware, and fully referenceable back to source documentation in your enterprise. Glean also empowers users to quickly and securely build multi-step prompts and custom generative AI apps, agents, and assistants that automate everyday workflows. With over 100 connectors, LLM options, and no need for costly professional services, data training, or manual fine-tuning, Glean delivers turnkey implementation of a complex AI ecosystem on one centralized platform. Founded by Arvind Jain (Google Distinguished Engineer, Rubrik Co-founder), T.R. Vishwanath (Microsoft, Meta), Piyush Prahladka (Google, Uber), and Tony Gentilcore (Google), Glean has received funding from Altimeter, Coatue, Craft Ventures, DST Global, General Catalyst, ICONIQ Growth, IVP, Kleiner Perkins, Lightspeed Venture Partners, Sapphire Ventures, Sequoia Capital, SoftBank Vision Fund 2, and other leading investors.
