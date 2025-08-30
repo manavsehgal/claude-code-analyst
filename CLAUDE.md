@@ -194,35 +194,4 @@ Features:
 
 The tool processes markdown files containing ```mermaid code blocks and generates professional-quality images suitable for documentation, presentations, and publications.
 
-### Markdown Chat App
-Interactive terminal chatbot powered by Claude Code SDK for discussing markdown files:
-
-```bash
-# Run the chatbot in current directory
-uv run python apps/markdown_chat/run.py
-
-# Run in specific directory
-uv run python apps/markdown_chat/run.py --directory /path/to/markdown/files
-```
-
-Features:
-- Automatic discovery of all markdown files in working directory (recursive search)
-- Terminal UI with intuitive commands (list, load, show, help, quit)
-- Loads markdown files into context for Claude conversations
-- Supports both web URLs and local file discussions
-- Graceful error handling and environment variable detection
-- Async communication with Claude Code SDK
-
-Commands:
-- `list` - Show all available markdown files with numbers
-- `load <number>` - Load specific markdown file by number into context
-- `show` - Display currently loaded file information
-- `help` - Show all available commands
-- `quit/exit/q` - Exit the chatbot
-
-**Dependencies:**
-- Claude Code SDK: `claude-code-sdk>=0.0.20` (included in project)
-- ANTHROPIC_API_KEY environment variable required for Claude communication
-
-The app creates an interactive terminal session where you can browse and discuss any markdown file in your project with Claude.
 

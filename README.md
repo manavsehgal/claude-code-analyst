@@ -15,15 +15,13 @@
 
 ## 📋 Overview
 
-Claude Code Analyst is a comprehensive toolkit for capturing, converting, and visualizing web content with AI-powered analysis capabilities. Built specifically for [Claude Code](https://claude.ai/code) integration, it provides powerful utilities to transform unstructured web content into clean Markdown documents, preserve complete HTML archives, generate insightful Mermaid.js visualizations, and interact with content through an intelligent terminal-based chatbot.
+Claude Code Analyst is a comprehensive toolkit for capturing, converting, and visualizing web content. Built specifically for [Claude Code](https://claude.ai/code) integration, it provides powerful utilities to transform unstructured web content into clean Markdown documents, preserve complete HTML archives, and generate insightful Mermaid.js visualizations.
 
 ### Why Claude Code Analyst?
 
 - **🌐 Complete Content Capture**: Convert web articles to Markdown OR preserve as clean HTML archives
 - **📊 Content Intelligence**: Extract structured data with comprehensive metadata preservation
 - **🎨 Visual Understanding**: Automatically generate diagrams from text to reveal hidden patterns and relationships
-- **🤖 AI-Powered Chat**: Interactive terminal chatbot for intelligent markdown content analysis
-- **⚙️ User Configurable**: Customize AI behavior, system prompts, and chat settings via YAML configuration
 - **🚀 Production Quality**: Respects robots.txt, handles edge cases, and produces clean, consistent output
 
 ## ✨ Features
@@ -68,42 +66,12 @@ Convert Mermaid diagrams to high-quality images:
 - **Theme Support**: Default, dark, forest, neutral, and base themes available
 - **Custom Configuration**: Configurable via `config.yml` for dimensions, themes, and output settings
 
-### 🤖 Enhanced Markdown Chat App
-Advanced terminal-based AI chatbot for intelligent markdown content analysis:
-
-#### Core Features
-- **Smart File Discovery**: Automatically finds and organizes markdown files with folder navigation
-- **Rich Terminal UI**: Beautiful, responsive terminal interface with streaming responses and progress indicators
-- **Context Management**: Load any markdown file into conversation context with file preview and metadata
-- **Advanced Markdown Rendering**: Comprehensive support for tables, headings, lists, blockquotes, code blocks, and more
-- **Table Excellence**: Professional table rendering with markdown formatting preserved in cells
-
-#### AI Integration & Configuration
-- **Modern Claude Code SDK**: Uses latest SDK with async resource management and proper error handling
-- **User-Configurable AI**: Customize Claude's behavior via `config.yml` including:
-  - System prompts and AI personality
-  - Model selection and performance settings
-  - Thinking tokens and conversation limits
-  - Permission modes and safety settings
-- **Multi-Authentication Support**: Supports three authentication methods:
-  - Direct API key (`ANTHROPIC_API_KEY`)
-  - Claude Pro/Max plan authentication
-  - Amazon Bedrock integration
-- **Intelligent Error Handling**: Graceful fallbacks and detailed error messages
-
-#### Navigation & Commands
-- **Folder Navigation**: Browse configured project folders with file counts and descriptions
-- **File Management**: List, load, show, and refresh commands with rich metadata display
-- **Interactive Help**: Comprehensive help system with examples and pro tips
-- **Smart Context**: File preview, word counts, structure analysis, and content insights
-
 ## 🚀 Quick Start
 
 ### Prerequisites
 
 - Python 3.13+
 - [uv](https://docs.astral.sh/uv/) package manager
-- Claude Code SDK (for chat features)
 - Optional: [Mermaid CLI](https://github.com/mermaid-js/mermaid-cli) for image conversion
 
 ### Installation
@@ -115,9 +83,6 @@ cd claude-code-analyst
 
 # Install dependencies with uv
 uv sync
-
-# For chat features, ensure Claude Code SDK is available
-uv add claude-code-sdk
 ```
 
 ### Basic Usage
@@ -204,34 +169,6 @@ visualizations/
     └── 03-relationships-01.pdf
 ```
 
-#### 5️⃣ Interactive AI Chat with Markdown Content
-
-```bash
-# Run the enhanced markdown chat application
-uv run python apps/markdown_chat/run.py
-
-# Chat with specific directory content
-uv run python apps/markdown_chat/run.py --directory /path/to/markdown/files
-```
-
-**Chat Features:**
-- 📁 **Smart Navigation**: Browse configured folders (Projects, Transcripts, Markdown)
-- 📄 **File Management**: List, load, and analyze any markdown file
-- 🤖 **AI Conversations**: Discuss content with Claude using customizable system prompts
-- 🎨 **Rich UI**: Beautiful terminal interface with table rendering and streaming responses
-- ⚙️ **Configurable**: Customize AI behavior via `apps/markdown_chat/config.yml`
-
-**Sample Configuration (`apps/markdown_chat/config.yml`)**:
-```yaml
-claude:
-  model: "claude-sonnet-4"
-  max_thinking_tokens: 5000
-  max_turns: 10
-  system_prompt: |
-    You are a helpful AI assistant specialized in analyzing markdown documents. 
-    Provide clear, concise responses about the content with proper formatting.
-```
-
 ### 🔗 Complete Workflow Examples
 
 #### Research & Analysis Workflow
@@ -248,12 +185,8 @@ uv run python scripts/article_to_md.py https://research-paper.com/ai-study
 # Step 4: Convert diagrams to presentation-ready images
 uv run python scripts/mermaid_to_image.py mermaid/ai-study/01-workflow.md --format png --theme dark
 
-# Step 5: Interactive analysis with AI
-uv run python apps/markdown_chat/run.py
-# Navigate to the processed content and discuss with AI
-
 # Result: Complete research package with readable archive, processable text, 
-# visual insights, presentation-ready images, and AI-powered analysis
+# and visual insights with presentation-ready images
 ```
 
 #### Documentation Preservation
@@ -276,61 +209,6 @@ uv run python scripts/article_to_md.py https://docs.example.com/api-guide --outp
 | [Documentation Index](docs/README.md) | All available documentation |
 
 ## 🎯 Examples
-
-### Enhanced Chat App Experience
-
-```bash
-$ uv run python apps/markdown_chat/run.py
-
-╭─────────────── Markdown Chat v3.0 ────────────────╮
-│  🤖 Welcome to Enhanced Markdown Chat!             │
-│  Status: ✓ Ready for AI chat (Pro/Max)            │
-│  Files: 15 markdown files discovered              │
-╰────────────────────────────────────────────────────╯
-
-📂 Navigation Root
-╭─────┬───────────────┬─────────────────────────┬─────────╮
-│   # │ Folder        │ Description             │   Files │
-├─────┼───────────────┼─────────────────────────┼─────────┤
-│   1 │ 📁 Projects   │ Analysis projects       │ 6 files │
-│   2 │ 📁 Transcripts│ Video transcripts       │ 4 files │
-│   3 │ 📁 Markdown   │ Converted articles      │ 5 files │
-╰─────┴───────────────┴─────────────────────────┴─────────╯
-
-💬 You: 1
-
-📂 Current Folder: Projects
-╭─────┬─────────────────────────────────────────┬─────────────╮
-│   # │ File                                    │        Size │
-├─────┼─────────────────────────────────────────┼─────────────┤
-│   1 │ 📄 llm-architectures-aws/report-03.md  │      47.1 KB│
-│   2 │ 📄 robotics-analysis/industry-study.md │      32.4 KB│
-╰─────┴─────────────────────────────────────────┴─────────────╯
-
-💬 You: load 1
-
-✅ File Loaded: llm-architectures-aws/report-03.md
-📊 48,258 characters, 812 lines
-
-💬 You (report-03.md): summarize the key findings
-
-🤖 Claude is analyzing...
-
-📊 Key Findings from LLM Architecture Analysis
-
-| Architecture | Training Efficiency | Inference Speed | Memory Usage |
-|--------------|-------------------|-----------------|--------------|
-| Transformer  | ⭐⭐⭐           | ⭐⭐            | ⭐⭐⭐       |
-| MoE         | ⭐⭐⭐⭐⭐        | ⭐⭐⭐          | ⭐⭐         |
-| State Space | ⭐⭐⭐⭐          | ⭐⭐⭐⭐⭐       | ⭐⭐⭐⭐      |
-
-### Main Insights:
-• **Mixture of Experts (MoE)** models show 5x training efficiency gains
-• **State Space Models** achieve linear scaling with sequence length  
-• **Hybrid architectures** balance performance and computational costs
-
-💡 Ask follow-up questions about the content
-```
 
 ### Article Metadata Output (Markdown)
 
@@ -397,10 +275,6 @@ claude-code-analyst/
 │   ├── article_to_md.py       # Web article to Markdown converter
 │   ├── html_downloader.py     # HTML page archiving tool
 │   └── mermaid_to_image.py    # Mermaid diagram to image converter
-├── apps/                       # Interactive applications
-│   └── markdown_chat/         # AI-powered markdown chat interface
-│       ├── run.py             # Terminal-based chatbot
-│       └── config.yml         # User-configurable AI settings
 ├── docs/                       # User guides and documentation
 │   ├── README.md              # Documentation index
 │   ├── article-to-md-guide.md
@@ -473,8 +347,6 @@ uv run mypy .
 | `markdownify` | HTML to Markdown conversion |
 | `readability-lxml` | Article content extraction |
 | `mermaid-mcp` | Mermaid diagram processing and image conversion |
-| `claude-code-sdk` | AI-powered chat and analysis features |
-| `rich` | Enhanced terminal UI and formatting |
 | `pyyaml` | Configuration file handling |
 | `ruff` | Fast Python linting |
 | `black` | Code formatting |
@@ -487,22 +359,19 @@ uv run mypy .
 - **Academic Papers**: Archive research papers as HTML for citation and clean Markdown for analysis
 - **Literature Reviews**: Convert multiple sources to consistent formats for comparative analysis
 - **Reference Management**: Build structured knowledge bases with metadata preservation
-- **AI-Assisted Analysis**: Discuss research findings with Claude through the chat interface
 
 ### 📖 Documentation & Knowledge Management
 - **Technical Documentation**: Convert API docs to portable Markdown or preserve as styled HTML
-- **Team Knowledge Base**: Archive important articles and resources for offline access with AI-powered search
+- **Team Knowledge Base**: Archive important articles and resources for offline access
 - **Competitive Intelligence**: Analyze competitor content and track changes over time
-- **Interactive Exploration**: Navigate and discuss documentation with AI assistance
 
 ### 📰 Content Analysis & Journalism
 - **News Archiving**: Preserve news articles before they change or disappear
 - **Content Migration**: Move content between platforms while maintaining formatting
 - **Fact Checking**: Create timestamped archives of web content for verification
-- **AI-Powered Insights**: Extract patterns and insights from content using chat interface
 
 ### 🏢 Business Intelligence
-- **Market Research**: Archive industry reports and analysis with AI-powered summarization
+- **Market Research**: Archive industry reports and analysis
 - **Competitive Analysis**: Track competitor announcements and strategy documents
 - **Compliance**: Maintain records of regulatory content and policy changes
 - **Strategic Planning**: Visualize business processes and strategies from archived content
@@ -514,14 +383,6 @@ uv run mypy .
 - [x] HTML page archiving with image preservation and enhanced Substack support
 - [x] Mermaid visualization generation (Claude Code integration)
 - [x] Mermaid to image conversion (PNG, SVG, PDF export)
-- [x] Enhanced interactive markdown chat application with AI integration
-- [x] Modern Claude Code SDK integration with async resource management
-- [x] User-configurable AI behavior via YAML configuration
-- [x] Advanced terminal UI with comprehensive markdown rendering
-- [x] Rich table rendering with formatting preservation
-- [x] Multi-authentication support (API key, Pro/Max plan, Bedrock)
-- [x] Smart folder navigation and file management
-- [x] Professional error handling and performance optimization
 - [x] Comprehensive documentation and user guides
 
 ### Planned Enhancements 🔄
@@ -534,9 +395,6 @@ uv run mypy .
 - [ ] Video/audio content transcription and processing
 - [ ] Archive compression (ZIP/TAR formats)
 - [ ] Integration with more visualization formats beyond Mermaid
-- [ ] Advanced chat features (conversation history, bookmarks, search)
-- [ ] Multi-model support (different AI providers)
-- [ ] Collaborative features (shared workspaces, annotations)
 
 ## 🤝 Contributing
 
@@ -593,7 +451,6 @@ This toolkit is designed for legitimate research, documentation, and analysis pu
 - [Claude Code](https://claude.ai/code) for AI-powered development capabilities
 - [uv](https://docs.astral.sh/uv/) for modern Python package management
 - [BeautifulSoup](https://www.crummy.com/software/BeautifulSoup/) for robust HTML parsing
-- [Rich](https://rich.readthedocs.io/) for beautiful terminal interfaces
 
 ## 📮 Support
 
