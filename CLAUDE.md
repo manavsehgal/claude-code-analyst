@@ -194,4 +194,41 @@ Features:
 
 The tool processes markdown files containing ```mermaid code blocks and generates professional-quality images suitable for documentation, presentations, and publications.
 
+### SEC 10-K Technology Analyzer
+Extract technology-relevant sections from SEC 10-K filings for strategic business analysis:
+
+```bash
+# Basic usage with company name or ticker
+uv run python scripts/10k_tech.py <company-name-or-ticker>
+
+# Examples
+uv run python scripts/10k_tech.py Microsoft
+uv run python scripts/10k_tech.py AAPL
+uv run python scripts/10k_tech.py "Meta Platforms"
+
+# With custom config file
+uv run python scripts/10k_tech.py <company> --config custom-config.yml
+```
+
+Features:
+- Automatically finds company CIK using SEC's official company_tickers.json
+- Downloads latest 10-K filing directly from SEC EDGAR database
+- Extracts 4 key technology-focused sections: Business (Item 1), Risk Factors (Item 1A), Properties (Item 2), and Management Discussion & Analysis (Item 7)
+- SEC-compliant requests with proper rate limiting (8 requests/second)
+- Intelligent section boundary detection using configurable regex patterns
+- Content filtering based on length and technology keyword relevance
+- Rich markdown output with YAML frontmatter metadata
+- Organized output structure: `markdown/company-name/10k-yyyy.md`
+
+Output includes:
+- Company information and filing details
+- Technology strategy and business operations analysis
+- Risk assessment for cybersecurity and technology threats
+- Infrastructure and facilities overview
+- Strategic technology investments and future plans
+
+The tool uses SEC's free official APIs (no API key required) and respects all SEC access guidelines. Configuration is fully customizable via `config.yml` including section patterns, content filtering, and technology keywords.
+
+Perfect for competitive analysis, technology due diligence, and understanding enterprise technology strategies.
+
 
