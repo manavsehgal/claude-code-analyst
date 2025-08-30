@@ -4,21 +4,17 @@
     "type": "split",
     "children": [
       {
-        "id": "d86d76a3f8ffebc9",
+        "id": "8bdfbd27c90dd12b",
         "type": "tabs",
         "children": [
           {
-            "id": "3559bb3bcfe24003",
+            "id": "f9fd04e95769f2dd",
             "type": "leaf",
             "state": {
-              "type": "markdown",
-              "state": {
-                "file": "mermaid/llm-architectures-aws/09-bedrock-ecosystem-integration.md",
-                "mode": "source",
-                "source": false
-              },
+              "type": "empty",
+              "state": {},
               "icon": "lucide-file",
-              "title": "09-bedrock-ecosystem-integration"
+              "title": "New tab"
             }
           }
         ]
@@ -94,7 +90,6 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "mermaid/llm-architectures-aws/09-bedrock-ecosystem-integration.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -104,7 +99,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for 09-bedrock-ecosystem-integration"
+              "title": "Backlinks"
             }
           },
           {
@@ -113,12 +108,11 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "mermaid/llm-architectures-aws/09-bedrock-ecosystem-integration.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Outgoing links from 09-bedrock-ecosystem-integration"
+              "title": "Outgoing links"
             }
           },
           {
@@ -142,13 +136,12 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "mermaid/llm-architectures-aws/09-bedrock-ecosystem-integration.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of 09-bedrock-ecosystem-integration"
+              "title": "Outline"
             }
           }
         ]
@@ -169,53 +162,53 @@
       "bases:Create new base": false
     }
   },
-  "active": "3559bb3bcfe24003",
+  "active": "f9fd04e95769f2dd",
   "lastOpenFiles": [
-    "markdown/meta/10k-2025.md",
-    "markdown/meta",
-    "markdown/microsoft/10k-2025.md",
-    "markdown/microsoft",
-    "debug_10k.py",
-    "scripts/10k_tech.py.tmp.26041.1756542955875",
-    "scripts/10k_tech.py",
-    "markdown/meta-20241231/article.md",
-    "mermaid/llm-architectures-aws/09-bedrock-ecosystem-integration.md",
-    "markdown/meta-20241231/images/image_4366877033706076351.png",
-    "markdown/meta-20241231/images",
-    "markdown/meta-20241231",
-    "html/meta-20241231/index.html",
-    "html/meta-20241231/images/image_4366877033706076351.png",
-    "html/meta-20241231/images",
-    "html/meta-20241231",
+    "docs/aws-ai-proposal-generator-guide.md.tmp.72497.1756579331559",
+    "apps/proposal_backup.py",
+    "apps/proposal_new.py",
+    "markdown/walmart/10k-2025.md",
+    "markdown/walmart",
+    "apps/proposal.py.tmp.72497.1756577509148",
+    "markdown/walmart-inc/10k-2025.md",
+    "markdown/walmart-inc",
+    "markdown/wmt/10k-2025.md",
+    "markdown/wmt",
+    "proposals/walmart/proposal-2025-08-30.md",
+    "proposals/walmart",
+    "specs/proposal.md.tmp.72497.1756576954512",
+    "specs/proposal.md.tmp.72497.1756576943063",
+    "apps/proposal_old.py",
+    "docs/aws-ai-proposal-generator-guide.md",
     "specs/pitch.md",
-    "apps/scikit_chat/README.md",
-    "apps/README.md",
-    "apps/llm_report_chatbot/README.md",
+    "markdown/microsoft/10k-2025.md",
+    "markdown/meta/10k-2025.md",
+    "proposals/disney/proposal-2025-08-30.md",
+    "proposals/test-company/proposal-2025-08-30.md",
+    "customers/healthcare-innovations.md",
+    "customers/fintech-solutions.md",
+    "customers/acme-corp.md",
+    "companies/walmart/strategy-agents.md",
+    "companies/walmart/list AI advancements, challenges, adoption related - Walmart.md",
+    "companies/tesla/Tesla AI Advancements, Challenges, and Adoption - Tesla.md",
+    "companies/sierra-ai/sierra-agent-stack.png",
+    "companies/sierra-ai/rolling-your-own-agent.md",
+    "companies/sierra-ai/AI Advancements, Challenges, and Adoption Insights - Sierra.md",
+    "companies/pacfusion/list AI advancements, challenges, adoption related - pacfusion.md",
+    "companies/nvidia/AI Advancements, Challenges, Adoption and Market - Nvidia.md",
+    "companies/meta/AI Advancements, Challenges, and Adoption Insights - Meta.md",
+    "companies/glean/list AI advancements, challenges, adoption related - Glean.md",
+    "companies/glean/glean-stack.webp",
+    "companies/glean/glean-stack.md",
+    "companies/disney/AI Advancements, Challenges, and Adoption Insights - Disney.md",
+    "companies/cursor/AI Advancements, Challenges, and Adoption Insights - Cursor.md",
+    "markdown/meta-20241231/images/image_4366877033706076351.png",
+    "html/meta-20241231/images/image_4366877033706076351.png",
     "visualizations/llm-architectures-aws/09-bedrock-ecosystem-integration-01.png",
     "visualizations/llm-architectures-aws/08-modern-llm-architecture-patterns-01.png",
     "visualizations/llm-architectures-aws/07-cost-optimization-matrix-01.png",
     "visualizations/llm-architectures-aws/06-ec2-instance-selection-guide-01.png",
     "visualizations/llm-architectures-aws/05-training-pipeline-workflow-01.png",
-    "visualizations/llm-architectures-aws/04-hyperpod-infrastructure-diagram-01.png",
-    "visualizations/llm-architectures-aws/03-aws-llm-pipeline-architecture-01.png",
-    "visualizations/llm-architectures-aws/02-architectural-innovations-flowchart-01.png",
-    "mermaid/llm-architectures-aws/README.md",
-    "mermaid/llm-architectures-aws/08-modern-llm-architecture-patterns.md",
-    "mermaid/llm-architectures-aws/07-cost-optimization-matrix.md",
-    "mermaid/llm-architectures-aws/06-ec2-instance-selection-guide.md",
-    "mermaid/llm-architectures-aws/05-training-pipeline-workflow.md",
-    "mermaid/llm-architectures-aws/04-hyperpod-infrastructure-diagram.md",
-    "mermaid/llm-architectures-aws/03-aws-llm-pipeline-architecture.md",
-    "mermaid/llm-architectures-aws/02-architectural-innovations-flowchart.md",
-    "mermaid/llm-architectures-aws/01-architecture-evolution-timeline.md",
-    "projects/llm-architectures-on-aws/report-03.md",
-    "projects/llm-architectures-on-aws/diff.md",
-    "projects/llm-architectures-on-aws/report-02.md",
-    "projects/llm-architectures-on-aws/report-01.md",
-    "transcripts/train-llm-sagemaker-2024/train-llm-sagemaker-2024.md",
-    "mermaid/llm-architectures-aws-report/08-cost-reduction-summary.md",
-    "mermaid/llm-architectures-aws-report/01-llm-architecture-evolution.md",
-    "mermaid/llm-architectures-aws-report/10-architecture-innovation-mindmap.md",
-    "mermaid/llm-architectures-aws-report/09-training-pipeline-workflow.md"
+    "visualizations/llm-architectures-aws/04-hyperpod-infrastructure-diagram-01.png"
   ]
 }
