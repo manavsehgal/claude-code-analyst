@@ -22,8 +22,9 @@ apps/
 The main interface for interacting with Claude Code in headless mode.
 
 ```python
-from apps.agent import ClaudeAgent, AgentConfig
+from apps.agent import ClaudeAgent, AgentConfig, AuthManager
 
+# Basic usage
 config = AgentConfig(
     system_prompt="You are a helpful assistant",
     allowed_tools=["Read", "Grep"],
@@ -31,6 +32,10 @@ config = AgentConfig(
 )
 
 agent = ClaudeAgent(config)
+
+# With authentication detection
+auth_manager = AuthManager()
+agent = ClaudeAgent(config, auth_manager=auth_manager)
 
 # Synchronous query
 response = await agent.query_sync("Analyze this codebase")
@@ -84,6 +89,35 @@ mcp.add_server(MCPServer.create_http_server(
     url="https://api.github.com/mcp"
 ))
 ```
+
+### AuthManager (auth.py)
+Detects and manages authentication methods for Claude Code.
+
+```python
+from apps.agent import AuthManager, AuthMethod
+
+auth_manager = AuthManager()
+
+# Detect current authentication method
+auth_status = auth_manager.detect_auth_method()
+
+print(f"Method: {auth_status.method.value}")
+print(f"Authenticated: {auth_status.is_authenticated}")
+print(f"Details: {auth_status.details}")
+
+# Get configuration instructions
+if not auth_status.is_authenticated:
+    instructions = auth_manager.get_configuration_instructions(auth_status.method)
+    print(instructions)
+
+# Get auth config for ClaudeAgent
+auth_config = auth_manager.get_auth_config()
+```
+
+Supported authentication methods:
+- `ANTHROPIC_API`: Direct API key authentication
+- `AMAZON_BEDROCK`: AWS Bedrock with AWS credentials
+- `CLAUDE_ACCOUNT`: Pro/Max subscription login via CLI
 
 ### SubAgentManager (subagents.py)
 Handles specialized subagents for task delegation.
@@ -150,13 +184,44 @@ response = await agent.query_sync(user_input)
 st.write(response)
 ```
 
-## Environment Variables
+## Authentication Configuration
 
-For Amazon Bedrock integration:
+Claude Code supports three authentication methods:
+
+### 1. Anthropic API (Direct API Key)
 ```bash
-export CLAUDE_CODE_USE_BEDROCK=1
-export AWS_REGION=us-east-1
+export ANTHROPIC_API_KEY="your-api-key-here"
+export ANTHROPIC_API_BASE="https://api.anthropic.com"  # Optional
 ```
+
+### 2. Amazon Bedrock
+```bash
+# Configure AWS credentials (one of these methods):
+aws configure
+# OR
+export AWS_ACCESS_KEY_ID="your-access-key"
+export AWS_SECRET_ACCESS_KEY="your-secret-key"
+export AWS_REGION="us-east-1"
+
+# Enable Bedrock mode
+export CLAUDE_CODE_USE_BEDROCK=1
+
+# Optional: Configure models
+export CLAUDE_CODE_PRIMARY_MODEL="us.anthropic.claude-3-7-sonnet-20250219-v1:0"
+export CLAUDE_CODE_SMALL_MODEL="us.anthropic.claude-3-5-haiku-20241022-v1:0"
+```
+
+### 3. Claude Account (Pro/Max Subscription)
+```bash
+# Install and authenticate
+npm install -g @anthropic-ai/claude-code
+claude login
+
+# Check status
+claude status
+```
+
+The example app automatically detects which method is configured and displays the status in the sidebar.
 
 ## Requirements
 

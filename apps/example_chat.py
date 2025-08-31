@@ -8,8 +8,7 @@ import asyncio
 from pathlib import Path
 
 import streamlit as st
-
-from agent import AgentConfig, ClaudeAgent, SessionManager, SubAgentManager, ToolManager
+from agent import AgentConfig, AuthManager, AuthMethod, ClaudeAgent, SessionManager, SubAgentManager, ToolManager
 from agent.client import OutputFormat, PermissionMode
 from agent.tools import Tool
 
@@ -28,6 +27,9 @@ def initialize_session_state():
     if "subagent_manager" not in st.session_state:
         st.session_state.subagent_manager = SubAgentManager()
 
+    if "auth_manager" not in st.session_state:
+        st.session_state.auth_manager = AuthManager()
+
     if "current_session" not in st.session_state:
         st.session_state.current_session = None
 
@@ -41,6 +43,59 @@ def render_sidebar():
     """Render the sidebar with configuration options."""
     with st.sidebar:
         st.header("Configuration")
+
+        # Authentication Status
+        st.subheader("Authentication Status")
+        auth_status = st.session_state.auth_manager.detect_auth_method()
+
+        # Display auth method with color-coded status
+        if auth_status.is_authenticated:
+            st.success(f"✅ {auth_status.details.get('method', 'Unknown')}")
+        else:
+            st.error("❌ Not Authenticated")
+
+        # Display auth details
+        with st.expander("Authentication Details", expanded=not auth_status.is_authenticated):
+            if auth_status.method == AuthMethod.AMAZON_BEDROCK:
+                st.write("**Method:** Amazon Bedrock")
+                st.write(f"**Region:** {auth_status.details.get('aws_region', 'Not set')}")
+                st.write(f"**Credential Source:** {auth_status.details.get('credential_source', 'Unknown')}")
+                st.write(f"**Primary Model:** {auth_status.details.get('primary_model', 'Default')[:50]}...")
+            elif auth_status.method == AuthMethod.ANTHROPIC_API:
+                st.write("**Method:** Anthropic API")
+                st.write(f"**API Key:** {auth_status.details.get('api_key', 'Not set')}")
+                st.write(f"**API Base:** {auth_status.details.get('api_base', 'Default')}")
+            elif auth_status.method == AuthMethod.CLAUDE_ACCOUNT:
+                st.write("**Method:** Claude Account")
+                st.write(f"**Subscription:** {auth_status.details.get('subscription', 'Unknown')}")
+                if "login_method" in auth_status.details:
+                    st.write(f"**Login Method:** {auth_status.details['login_method']}")
+                if "account_type" in auth_status.details:
+                    st.write(f"**Account Type:** {auth_status.details['account_type']}")
+                if "current_model" in auth_status.details:
+                    st.write(f"**Model:** {auth_status.details['current_model']}")
+                if auth_status.details.get("status_command_working"):
+                    st.write("**Status:** /status command working ✅")
+                if "doctor_output" in auth_status.details:
+                    st.write(f"**Doctor Info:** {auth_status.details['doctor_output'][:100]}...")
+            else:
+                st.write("**Method:** None configured")
+
+            if auth_status.error:
+                st.error(auth_status.error)
+
+            # Show configuration instructions if not authenticated
+            if not auth_status.is_authenticated:
+                st.write("**Configuration Instructions:**")
+                instructions = st.session_state.auth_manager.get_configuration_instructions(auth_status.method)
+                st.code(instructions, language="markdown")
+
+        # Refresh button
+        if st.button("🔄 Refresh Auth Status"):
+            st.session_state.auth_manager.refresh_status()
+            st.rerun()
+
+        st.divider()
 
         # Tool Profile Selection
         st.subheader("Tool Profile")
@@ -152,7 +207,7 @@ def render_chat():
                 Tool[tool] for tool in st.session_state.tool_manager.disallowed_tools
             ]
 
-            agent = ClaudeAgent(st.session_state.agent_config)
+            agent = ClaudeAgent(st.session_state.agent_config, auth_manager=st.session_state.auth_manager)
 
             # Execute query asynchronously
             try:

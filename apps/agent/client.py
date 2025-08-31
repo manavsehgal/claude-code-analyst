@@ -50,11 +50,31 @@ class AgentConfig:
 class ClaudeAgent:
     """Main client for interacting with Claude Code SDK."""
 
-    def __init__(self, config: AgentConfig | None = None):
-        """Initialize Claude Agent with configuration."""
+    def __init__(self, config: AgentConfig | None = None, auth_manager=None):
+        """
+        Initialize Claude Agent with configuration.
+
+        Args:
+            config: Agent configuration
+            auth_manager: Optional AuthManager instance for authentication
+        """
         self.config = config or AgentConfig()
         self.conversation_id: str | None = None
         self._process: subprocess.Popen | None = None
+
+        # Apply auth configuration if auth_manager provided
+        if auth_manager:
+            from .auth import AuthManager
+
+            if isinstance(auth_manager, AuthManager):
+                auth_config = auth_manager.get_auth_config()
+                # Merge auth config with existing config
+                if auth_config.get("use_bedrock"):
+                    self.config.use_bedrock = True
+                if auth_config.get("aws_region"):
+                    self.config.aws_region = auth_config["aws_region"]
+                if auth_config.get("environment"):
+                    self.config.environment.update(auth_config["environment"])
 
     async def query(self, prompt: str, resume_id: str | None = None) -> AsyncIterator[str]:
         """
