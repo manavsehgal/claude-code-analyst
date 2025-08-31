@@ -305,6 +305,7 @@ claude-code-analyst/
 │   └── commands/
 │       ├── mermaid.md        # Mermaid visualization generator
 │       └── readme.md         # README generation command
+├── config.yml                # Configuration file
 ├── CLAUDE.md                 # Claude Code configuration
 ├── pyproject.toml           # Project dependencies
 └── README.md                # This file
@@ -384,6 +385,7 @@ uv run mypy .
 - [x] Mermaid visualization generation (Claude Code integration)
 - [x] Mermaid to image conversion (PNG, SVG, PDF export)
 - [x] Comprehensive documentation and user guides
+- [x] Professional development tooling (ruff, black, mypy, pytest)
 
 ### Planned Enhancements 🔄
 - [ ] PDF article processing support
@@ -395,6 +397,8 @@ uv run mypy .
 - [ ] Video/audio content transcription and processing
 - [ ] Archive compression (ZIP/TAR formats)
 - [ ] Integration with more visualization formats beyond Mermaid
+- [ ] Chrome/Firefox browser extension for one-click archiving
+- [ ] Cloud storage integration (S3, Google Drive, Dropbox)
 
 ## 🤝 Contributing
 
@@ -413,7 +417,7 @@ We welcome contributions! Please follow these guidelines:
 # 1. Setup development environment
 git clone https://github.com/manavsehgal/claude-code-analyst.git
 cd claude-code-analyst
-uv sync
+uv sync --dev
 
 # 2. Create feature branch
 git checkout -b feature/amazing-feature
@@ -421,6 +425,7 @@ git checkout -b feature/amazing-feature
 # 3. Make changes and test
 uv run pytest tests/
 uv run ruff check .
+uv run black .
 
 # 4. Commit and push
 git commit -m 'Add amazing feature'
