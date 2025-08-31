@@ -30,6 +30,9 @@ def initialize_session_state():
     if "auth_manager" not in st.session_state:
         st.session_state.auth_manager = AuthManager()
 
+    if "auth_status" not in st.session_state:
+        st.session_state.auth_status = None
+
     if "current_session" not in st.session_state:
         st.session_state.current_session = None
 
@@ -46,54 +49,61 @@ def render_sidebar():
 
         # Authentication Status
         st.subheader("Authentication Status")
-        auth_status = st.session_state.auth_manager.detect_auth_method()
-
-        # Display auth method with color-coded status
-        if auth_status.is_authenticated:
-            st.success(f"✅ {auth_status.details.get('method', 'Unknown')}")
-        else:
-            st.error("❌ Not Authenticated")
-
-        # Display auth details
-        with st.expander("Authentication Details", expanded=not auth_status.is_authenticated):
-            if auth_status.method == AuthMethod.AMAZON_BEDROCK:
-                st.write("**Method:** Amazon Bedrock")
-                st.write(f"**Region:** {auth_status.details.get('aws_region', 'Not set')}")
-                st.write(f"**Credential Source:** {auth_status.details.get('credential_source', 'Unknown')}")
-                st.write(f"**Primary Model:** {auth_status.details.get('primary_model', 'Default')[:50]}...")
-            elif auth_status.method == AuthMethod.ANTHROPIC_API:
-                st.write("**Method:** Anthropic API")
-                st.write(f"**API Key:** {auth_status.details.get('api_key', 'Not set')}")
-                st.write(f"**API Base:** {auth_status.details.get('api_base', 'Default')}")
-            elif auth_status.method == AuthMethod.CLAUDE_ACCOUNT:
-                st.write("**Method:** Claude Account")
-                st.write(f"**Subscription:** {auth_status.details.get('subscription', 'Unknown')}")
-                if "login_method" in auth_status.details:
-                    st.write(f"**Login Method:** {auth_status.details['login_method']}")
-                if "account_type" in auth_status.details:
-                    st.write(f"**Account Type:** {auth_status.details['account_type']}")
-                if "current_model" in auth_status.details:
-                    st.write(f"**Model:** {auth_status.details['current_model']}")
-                if auth_status.details.get("status_command_working"):
-                    st.write("**Status:** /status command working ✅")
-                if "doctor_output" in auth_status.details:
-                    st.write(f"**Doctor Info:** {auth_status.details['doctor_output'][:100]}...")
-            else:
-                st.write("**Method:** None configured")
-
-            if auth_status.error:
-                st.error(auth_status.error)
-
-            # Show configuration instructions if not authenticated
-            if not auth_status.is_authenticated:
-                st.write("**Configuration Instructions:**")
-                instructions = st.session_state.auth_manager.get_configuration_instructions(auth_status.method)
-                st.code(instructions, language="markdown")
-
-        # Refresh button
-        if st.button("🔄 Refresh Auth Status"):
-            st.session_state.auth_manager.refresh_status()
+        
+        # Check Auth button
+        if st.button("🔍 Check Auth Status"):
+            with st.spinner("Checking authentication..."):
+                st.session_state.auth_status = st.session_state.auth_manager.detect_auth_method()
             st.rerun()
+
+        # Display auth status only if it has been checked
+        if st.session_state.auth_status is None:
+            pass  # No message needed
+        else:
+            auth_status = st.session_state.auth_status
+            
+            # Display auth method with color-coded status
+            if auth_status.is_authenticated:
+                st.success(f"✅ {auth_status.details.get('method', 'Unknown')}")
+            else:
+                st.error("❌ Not Authenticated")
+
+            # Display auth details
+            with st.expander("Authentication Details", expanded=not auth_status.is_authenticated):
+                if auth_status.method == AuthMethod.AMAZON_BEDROCK:
+                    st.write("**Method:** Amazon Bedrock")
+                    st.write(f"**Region:** {auth_status.details.get('aws_region', 'Not set')}")
+                    st.write(f"**Credential Source:** {auth_status.details.get('credential_source', 'Unknown')}")
+                    st.write(f"**Primary Model:** {auth_status.details.get('primary_model', 'Default')[:50]}...")
+                elif auth_status.method == AuthMethod.ANTHROPIC_API:
+                    st.write("**Method:** Anthropic API")
+                    st.write(f"**API Key:** {auth_status.details.get('api_key', 'Not set')}")
+                    st.write(f"**API Base:** {auth_status.details.get('api_base', 'Default')}")
+                elif auth_status.method == AuthMethod.CLAUDE_ACCOUNT:
+                    st.write("**Method:** Claude Account")
+                    st.write(f"**Subscription:** {auth_status.details.get('subscription', 'Unknown')}")
+                    if "login_method" in auth_status.details:
+                        st.write(f"**Login Method:** {auth_status.details['login_method']}")
+                    if "account_type" in auth_status.details:
+                        st.write(f"**Account Type:** {auth_status.details['account_type']}")
+                    if "current_model" in auth_status.details:
+                        st.write(f"**Model:** {auth_status.details['current_model']}")
+                    if auth_status.details.get("status_command_working"):
+                        st.write("**Status:** /status command working ✅")
+                    if "doctor_output" in auth_status.details:
+                        st.write(f"**Doctor Info:** {auth_status.details['doctor_output'][:100]}...")
+                else:
+                    st.write("**Method:** None configured")
+
+                if auth_status.error:
+                    st.error(auth_status.error)
+
+                # Show configuration instructions if not authenticated
+                if not auth_status.is_authenticated:
+                    st.write("**Configuration Instructions:**")
+                    instructions = st.session_state.auth_manager.get_configuration_instructions(auth_status.method)
+                    st.code(instructions, language="markdown")
+
 
         st.divider()
 
@@ -199,45 +209,50 @@ def render_chat():
             message_placeholder = st.empty()
             full_response = ""
 
-            # Configure agent with current settings
-            st.session_state.agent_config.allowed_tools = [
-                Tool[tool] for tool in st.session_state.tool_manager.allowed_tools
-            ]
-            st.session_state.agent_config.disallowed_tools = [
-                Tool[tool] for tool in st.session_state.tool_manager.disallowed_tools
-            ]
+            # Show progress indicator while processing
+            with st.spinner("🤔 Thinking..."):
+                # Configure agent with current settings
+                st.session_state.agent_config.allowed_tools = [
+                    Tool[tool] for tool in st.session_state.tool_manager.allowed_tools
+                ]
+                st.session_state.agent_config.disallowed_tools = [
+                    Tool[tool] for tool in st.session_state.tool_manager.disallowed_tools
+                ]
 
-            agent = ClaudeAgent(st.session_state.agent_config, auth_manager=st.session_state.auth_manager)
+                agent = ClaudeAgent(st.session_state.agent_config, auth_manager=st.session_state.auth_manager)
 
-            # Execute query asynchronously
-            try:
-                # Get resume ID from current session
-                resume_id = None
-                if st.session_state.current_session:
-                    resume_id = st.session_state.current_session.conversation_id
+                # Execute query asynchronously
+                try:
+                    # Get resume ID from current session
+                    resume_id = None
+                    if st.session_state.current_session:
+                        resume_id = st.session_state.current_session.conversation_id
 
-                # Run async query
-                async def run_query():
-                    response_parts = []
-                    async for chunk in agent.query(prompt, resume_id):
-                        response_parts.append(chunk)
-                    return "".join(response_parts)
+                    # Run async query
+                    async def run_query():
+                        response_parts = []
+                        async for chunk in agent.query(prompt, resume_id):
+                            response_parts.append(chunk)
+                        return "".join(response_parts)
 
-                # Execute in event loop
-                loop = asyncio.new_event_loop()
-                asyncio.set_event_loop(loop)
-                full_response = loop.run_until_complete(run_query())
-                loop.close()
+                    # Execute in event loop
+                    loop = asyncio.new_event_loop()
+                    asyncio.set_event_loop(loop)
+                    full_response = loop.run_until_complete(run_query())
+                    loop.close()
 
-                # Update conversation ID
-                if agent.conversation_id and st.session_state.current_session:
-                    st.session_state.session_manager.update_conversation_id(agent.conversation_id)
+                    # Update conversation ID
+                    if agent.conversation_id and st.session_state.current_session:
+                        st.session_state.session_manager.update_conversation_id(agent.conversation_id)
 
+                except Exception as e:
+                    full_response = f"Error: {str(e)}"
+
+            # Display final response (after spinner completes)
+            if full_response.startswith("Error:"):
+                message_placeholder.error(full_response)
+            else:
                 message_placeholder.markdown(full_response)
-
-            except Exception as e:
-                message_placeholder.error(f"Error: {str(e)}")
-                full_response = f"Error: {str(e)}"
 
         # Add assistant message
         st.session_state.messages.append({"role": "assistant", "content": full_response})

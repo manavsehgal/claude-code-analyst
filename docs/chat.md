@@ -1,8 +1,12 @@
-# Claude Code Agent Apps
+# Claude Code Agent Chat Application
 
-This directory contains Streamlit applications that leverage the headless Claude Code SDK for building AI-powered interfaces.
+This document covers the Claude Code Agent Chat application and the underlying agent package that powers AI-powered Streamlit interfaces.
 
-## Structure
+## Overview
+
+The chat application (`apps/chat.py`) leverages the headless Claude Code SDK to provide an interactive chat interface with comprehensive authentication support, session management, and progress indicators.
+
+## Project Structure
 
 ```
 apps/
@@ -12,8 +16,26 @@ apps/
 │   ├── session.py     # Session management
 │   ├── tools.py       # Tool permissions manager
 │   ├── mcp.py         # MCP server management
+│   ├── auth.py        # Authentication management
 │   └── subagents.py   # Subagent delegation
-└── example_chat.py    # Example chat application
+└── chat.py            # Chat application
+```
+
+## Quick Start
+
+1. Install dependencies:
+```bash
+uv sync
+```
+
+2. Install Claude Code SDK prerequisites:
+```bash
+npm install -g @anthropic-ai/claude-code
+```
+
+3. Run the chat app:
+```bash
+uv run streamlit run apps/chat.py
 ```
 
 ## Agent Package Components
@@ -77,19 +99,6 @@ Available profiles:
 - `web_research`: Web search and fetch only
 - `safe_execution`: Limited execution capabilities
 
-### MCPServer (mcp.py)
-Manages Model Context Protocol server connections.
-
-```python
-from apps.agent import MCPServer
-
-mcp = MCPServer()
-mcp.add_server(MCPServer.create_http_server(
-    name="github",
-    url="https://api.github.com/mcp"
-))
-```
-
 ### AuthManager (auth.py)
 Detects and manages authentication methods for Claude Code.
 
@@ -138,51 +147,29 @@ Built-in subagents:
 - `performance_optimizer`: Performance improvements
 - `security_auditor`: Security vulnerability detection
 
-## Running the Example App
+### MCPServer (mcp.py)
+Manages Model Context Protocol server connections.
 
-1. Install dependencies:
-```bash
-uv sync
-```
-
-2. Install Claude Code SDK prerequisites:
-```bash
-npm install -g @anthropic-ai/claude-code
-```
-
-3. Run the example chat app:
-```bash
-uv run streamlit run apps/example_chat.py
-```
-
-## Creating Your Own App
-
-1. Import the agent package:
 ```python
-from apps.agent import (
-    ClaudeAgent, 
-    AgentConfig,
-    SessionManager,
-    ToolManager,
-    SubAgentManager
-)
+from apps.agent import MCPServer
+
+mcp = MCPServer()
+mcp.add_server(MCPServer.create_http_server(
+    name="github",
+    url="https://api.github.com/mcp"
+))
 ```
 
-2. Configure the agent:
-```python
-config = AgentConfig(
-    system_prompt="Your custom prompt",
-    allowed_tools=["Read", "Write"],
-    output_format=OutputFormat.TEXT
-)
-```
+## Chat Application Features
 
-3. Use in your Streamlit app:
-```python
-agent = ClaudeAgent(config)
-response = await agent.query_sync(user_input)
-st.write(response)
-```
+The chat application (`apps/chat.py`) provides:
+
+- **Interactive Chat Interface**: Streamlit-based chat UI with message history
+- **Authentication Management**: Automatic detection and configuration guidance for all three Claude Code authentication methods
+- **Progress Indicators**: Visual feedback during response processing with animated spinner
+- **Session Management**: Conversation persistence across app restarts
+- **Tool Control**: Configurable tool permissions via sidebar
+- **Subagent Integration**: Access to specialized AI agents for different tasks
 
 ## Authentication Configuration
 
@@ -221,7 +208,36 @@ claude login
 claude status
 ```
 
-The example app automatically detects which method is configured and displays the status in the sidebar.
+The chat application automatically detects which method is configured and displays the status in the sidebar.
+
+## Creating Custom Applications
+
+1. Import the agent package:
+```python
+from apps.agent import (
+    ClaudeAgent, 
+    AgentConfig,
+    SessionManager,
+    ToolManager,
+    SubAgentManager
+)
+```
+
+2. Configure the agent:
+```python
+config = AgentConfig(
+    system_prompt="Your custom prompt",
+    allowed_tools=["Read", "Write"],
+    output_format=OutputFormat.TEXT
+)
+```
+
+3. Use in your Streamlit app:
+```python
+agent = ClaudeAgent(config)
+response = await agent.query_sync(user_input)
+st.write(response)
+```
 
 ## Requirements
 
@@ -230,9 +246,11 @@ The example app automatically detects which method is configured and displays th
 - Claude Code CLI installed
 - Valid Claude subscription (Pro or Max plan)
 
-## Notes
+## Technical Notes
 
 - The agent package is designed for headless operation
 - Sessions are persisted locally in `~/.claude_sessions/`
 - MCP configurations are stored in `.mcp.json`
 - Subagent configs are in `.claude/subagents.json`
+- Authentication status is checked on-demand to optimize app startup performance
+- Progress indicators use Streamlit's native spinner component for reliable UX

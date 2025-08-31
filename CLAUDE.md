@@ -196,49 +196,13 @@ Features:
 
 The tool processes markdown files containing ```mermaid code blocks and generates professional-quality images suitable for documentation, presentations, and publications.
 
-### SEC 10-K Technology Analyzer
-Extract technology-relevant sections from SEC 10-K filings for strategic business analysis:
-
-```bash
-# Basic usage with company name or ticker
-uv run python scripts/10k_tech.py <company-name-or-ticker>
-
-# Examples
-uv run python scripts/10k_tech.py Microsoft
-uv run python scripts/10k_tech.py AAPL
-uv run python scripts/10k_tech.py "Meta Platforms"
-
-# With custom config file
-uv run python scripts/10k_tech.py <company> --config custom-config.yml
-```
-
-Features:
-- Automatically finds company CIK using SEC's official company_tickers.json
-- Downloads latest 10-K filing directly from SEC EDGAR database
-- Extracts 4 key technology-focused sections: Business (Item 1), Risk Factors (Item 1A), Properties (Item 2), and Management Discussion & Analysis (Item 7)
-- SEC-compliant requests with proper rate limiting (8 requests/second)
-- Intelligent section boundary detection using configurable regex patterns
-- Content filtering based on length and technology keyword relevance
-- Rich markdown output with YAML frontmatter metadata
-- Organized output structure: `markdown/company-name/10k-yyyy.md`
-
-Output includes:
-- Company information and filing details
-- Technology strategy and business operations analysis
-- Risk assessment for cybersecurity and technology threats
-- Infrastructure and facilities overview
-- Strategic technology investments and future plans
-
-The tool uses SEC's free official APIs (no API key required) and respects all SEC access guidelines. Configuration is fully customizable via `config.yml` including section patterns, content filtering, and technology keywords.
-
-Perfect for competitive analysis, technology due diligence, and understanding enterprise technology strategies.
 
 ### Claude Code SDK Apps
 Build AI-powered Streamlit applications using the headless Claude Code SDK:
 
 ```bash
-# Run example chat application
-uv run streamlit run apps/example_chat.py
+# Run chat application
+uv run streamlit run apps/chat.py
 ```
 
 **Agent Package Components:**
@@ -246,6 +210,7 @@ uv run streamlit run apps/example_chat.py
 The `apps/agent/` package provides reusable capabilities for building Claude Code integrations:
 
 - **ClaudeAgent**: Core client for headless Claude Code interactions
+- **AuthManager**: Authentication method detection and configuration
 - **SessionManager**: Persistent conversation session management
 - **ToolManager**: Tool permission profiles (read_only, code_analysis, code_editing, full_access, etc.)
 - **MCPServer**: Model Context Protocol server connections
@@ -253,9 +218,10 @@ The `apps/agent/` package provides reusable capabilities for building Claude Cod
 
 **Example Usage:**
 ```python
-from apps.agent import ClaudeAgent, AgentConfig, ToolManager
+from apps.agent import ClaudeAgent, AgentConfig, AuthManager, ToolManager
 
-# Configure agent
+# Configure agent with authentication
+auth_manager = AuthManager()
 config = AgentConfig(
     system_prompt="You are a code review assistant",
     permission_mode=PermissionMode.DEFAULT
@@ -265,9 +231,13 @@ config = AgentConfig(
 tools = ToolManager()
 tools.apply_profile("code_analysis")
 
-# Execute query
-agent = ClaudeAgent(config)
+# Execute query with automatic auth detection
+agent = ClaudeAgent(config, auth_manager=auth_manager)
 response = await agent.query_sync("Review this function")
+
+# Check authentication status
+auth_status = auth_manager.detect_auth_method()
+print(f"Using {auth_status.method.value}: {'✅' if auth_status.is_authenticated else '❌'}")
 ```
 
 **Built-in Subagents:**
@@ -277,6 +247,15 @@ response = await agent.query_sync("Review this function")
 - `documentation_writer`: Technical documentation
 - `performance_optimizer`: Performance improvements
 - `security_auditor`: Security vulnerability detection
+
+**Authentication Options:**
+Claude Code supports three authentication methods (automatically detected):
+
+1. **Anthropic API**: Set `ANTHROPIC_API_KEY` environment variable
+2. **Amazon Bedrock**: Configure AWS credentials + `CLAUDE_CODE_USE_BEDROCK=1`
+3. **Claude Account**: Run `claude login` with Pro/Max subscription
+
+The Streamlit app displays current authentication status in the sidebar with configuration instructions.
 
 **Requirements:**
 - Install Claude Code SDK: `npm install -g @anthropic-ai/claude-code`
