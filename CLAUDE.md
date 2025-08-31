@@ -56,6 +56,8 @@ The project includes these pre-configured development tools:
 - `tests/` - Test files following pytest conventions
 - `docs/` - User documentation and guides
 - `backlog/` - Project backlog and task tracking
+- `apps/` - Streamlit applications with Claude Code SDK integration
+- `apps/agent/` - Reusable agent capabilities package
 - `main.py` - Main entry point
 
 ## Code Style Guidelines
@@ -230,5 +232,57 @@ Output includes:
 The tool uses SEC's free official APIs (no API key required) and respects all SEC access guidelines. Configuration is fully customizable via `config.yml` including section patterns, content filtering, and technology keywords.
 
 Perfect for competitive analysis, technology due diligence, and understanding enterprise technology strategies.
+
+### Claude Code SDK Apps
+Build AI-powered Streamlit applications using the headless Claude Code SDK:
+
+```bash
+# Run example chat application
+uv run streamlit run apps/example_chat.py
+```
+
+**Agent Package Components:**
+
+The `apps/agent/` package provides reusable capabilities for building Claude Code integrations:
+
+- **ClaudeAgent**: Core client for headless Claude Code interactions
+- **SessionManager**: Persistent conversation session management
+- **ToolManager**: Tool permission profiles (read_only, code_analysis, code_editing, full_access, etc.)
+- **MCPServer**: Model Context Protocol server connections
+- **SubAgentManager**: Specialized subagent delegation
+
+**Example Usage:**
+```python
+from apps.agent import ClaudeAgent, AgentConfig, ToolManager
+
+# Configure agent
+config = AgentConfig(
+    system_prompt="You are a code review assistant",
+    permission_mode=PermissionMode.DEFAULT
+)
+
+# Apply tool profile
+tools = ToolManager()
+tools.apply_profile("code_analysis")
+
+# Execute query
+agent = ClaudeAgent(config)
+response = await agent.query_sync("Review this function")
+```
+
+**Built-in Subagents:**
+- `code_reviewer`: Code quality and security review
+- `debugger`: Error analysis and debugging
+- `test_writer`: Test creation and coverage
+- `documentation_writer`: Technical documentation
+- `performance_optimizer`: Performance improvements
+- `security_auditor`: Security vulnerability detection
+
+**Requirements:**
+- Install Claude Code SDK: `npm install -g @anthropic-ai/claude-code`
+- Python claude-code-sdk package (included in dependencies)
+- Streamlit for web interface
+
+For complete documentation and examples, see [apps/README.md](apps/README.md)
 
 

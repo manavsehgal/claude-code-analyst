@@ -46,3 +46,17 @@
 
 [x] Install timeout, ruff, and other tools you use frequently to test Python scripts. Add these to CLAUDE.md
     **Completed**: Installed and configured comprehensive Python development toolset as dev dependencies in pyproject.toml. Added ruff (v0.8.4+) for fast linting with 120-char line length configuration, black (v24.11.0+) for consistent code formatting, mypy (v1.14.1+) for static type checking, pytest (v8.3.5+) with pytest-timeout (v2.3.1+) for testing with 300s default timeout, and ipdb (v0.13.13+) for interactive debugging. Updated CLAUDE.md with comprehensive documentation including "Code Quality Tools" section with usage examples for all tools, "Development Tools" section listing all installed tools with versions and descriptions, and enhanced "Development Setup" section with dev dependency installation commands. All tools tested successfully - ruff detects import issues, black identifies formatting needs, mypy performs type checking, and pytest runs with timeout support.
+
+[x] The apps/ folder will contain vibe coded single page Streamlit apps. All apps will be using headless Claude Code SDK for agent capabilities. Create an apps/agent/ package for reusable capabilities for these apps by researcching the following capabilities, samples, and docs:
+- Headless mode Claude Code
+    - https://docs.anthropic.com/en/docs/claude-code/sdk/sdk-python
+    - https://docs.anthropic.com/en/docs/claude-code/sdk/sdk-headless
+- Subagents
+    - https://docs.anthropic.com/en/docs/claude-code/sub-agents
+- MCP servers
+    - https://docs.anthropic.com/en/docs/claude-code/mcp
+- Install options
+    - https://docs.anthropic.com/en/docs/claude-code/amazon-bedrock
+    - https://support.anthropic.com/en/articles/11145838-using-claude-code-with-your-pro-or-max-plan
+    - https://docs.anthropic.com/en/docs/claude-code/quickstart
+    **Completed**: Created comprehensive `apps/` folder structure with `apps/agent/` package containing reusable Claude Code SDK capabilities. Researched and documented all requested features including headless mode, Python SDK, subagents, MCP servers, and installation options. Implemented 5 core modules: `client.py` (ClaudeAgent for headless interactions), `session.py` (SessionManager for conversation persistence), `tools.py` (ToolManager with 6 predefined profiles), `mcp.py` (MCPServer for MCP connections), and `subagents.py` (SubAgentManager with 6 built-in specialized agents). Created `example_chat.py` demonstrating Streamlit integration with agent capabilities. Added streamlit and claude-code-sdk dependencies to pyproject.toml. Documented everything in apps/README.md and updated CLAUDE.md with new capabilities. The package enables building AI-powered Streamlit apps with flexible tool permissions, session management, and specialized task delegation through subagents.
